@@ -12,9 +12,27 @@ IPAddress subnet_mask (255, 255, 255, 0);
 
 ESP8266WebServer server(80);
 
+void handleClient1(){
+  if(server.hasArg("true"))
+}  
+
+void handleClient2(){
+    float temperature = server.arg("temperature").toFloat();
+    float humidity = server.arg("humidity").toFloat();
+    float soil_moist = server.arg("soil_moist").toFloat();
+}
+
+void handleRoot(){
+  
+}
+
 void setup(){
   WiFi.softAP(ssid, password);
   WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);
+  
+  server.on("/client1/", HTTP_POST, handleClient1);
+  server.on("/client2/", HTTP_GET, handleClient2);
+  server.on("/", "text/html", handleRoot);
   
   server.begin();
   }
