@@ -52,25 +52,31 @@ String html = R"=====(
     <p>Klijent koji upravlja sa mikroklimom nekog objekta i prati vrijednost odredjenih velicina.</p>
     <p>Mikrokontroler prati vrijednosti ovih velicina i na osnovu njih pokrece sisteme za njihovu regulaciju.</p>
     <p>Sistemi za regulaciju takodje ce biti simulirani LE diodama.</p>
+    )=====";
+
+    html += "<h4>Temperatura:<span>";
+    html += (float)temperature;
+    html += "</span>C</h4>\n";
+    html += "<h4>Vlaznost vazduha:<span>";
+    html += (float)humidity;
+    html += "</span>[%]</h4>\n";
+    html += "<h4>Vlaznost zemljista:<span id=\"soil_moist\">";
+    html += (float)soil_moist;
+    html += "</span>[%]</h4>\n";
   
-    <h4>Temperatura:<span>(float)temperature</span>C</h4>
-    <h4>Vlaznost vazduha:<span>(float)humidity</span>[%]</h4>
-    <h4>Vlaznost zemljista:<span>(float)soil_moist</span>[%]</h4>
-  
-  </body>
-  </html>
-  )=====";
+    html += "</body>\n";
+    html += "</html>\n";
+
   return html;
 }
 
 /*void handleClient1(){
-
-  if(server.arg("free") == true && server.arg("client") == 1){
+  if(server.arg("free") == true && server.arg("client_id") == "1"){
     server.send();
 }  */
 
 void handleClient2(){
-  if (server.arg("client") == 2){
+  if (server.arg("client_id") == "2"){
   temperature = server.arg("temperature").toFloat();
   humidity = server.arg("humidity").toFloat();
   soil_moist = server.arg("soil_moist").toFloat();
@@ -86,7 +92,7 @@ void setup(){
   WiFi.softAP(ssid, password);
   WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);
   
-//  server.on("/client1/", HTTP_POST, handleClient1);
+//  server.on("/client1/", HTTP_GET, handleClient1);
   server.on("/client2/", HTTP_GET, handleClient2);
   server.on("/", handleRoot);
   
