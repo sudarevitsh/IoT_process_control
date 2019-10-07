@@ -70,10 +70,12 @@ String html = R"=====(
   return html;
 }
 
-/*void handleClient1(){
-  if(server.arg("free") == true && server.arg("client_id") == "1"){
-    server.send();
-}  */
+String new_job;
+void handleClient1(String new_job){
+  if(server.arg("free") == "true" && server.arg("client_id") == "1"){
+    server.send(200, "text/plain", new_job);
+  }
+}  
 
 void handleClient2(){
   if (server.arg("client_id") == "2"){
