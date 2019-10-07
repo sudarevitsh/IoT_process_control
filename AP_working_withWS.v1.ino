@@ -64,15 +64,18 @@ String html = R"=====(
 }
 
 /*void handleClient1(){
-  if(server.hasArg("true")){
+
+  if(server.arg("free") == true && server.arg("client") == 1){
     server.send();
 }  */
 
 void handleClient2(){
+  if (server.arg("client") == 2){
   temperature = server.arg("temperature").toFloat();
   humidity = server.arg("humidity").toFloat();
   soil_moist = server.arg("soil_moist").toFloat();
   server.send(200, "text/html", "Collected");
+  }
 }
 
 void handleRoot(){
