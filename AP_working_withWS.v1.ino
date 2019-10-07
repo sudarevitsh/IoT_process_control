@@ -80,7 +80,7 @@ void handleClient2(){
   temperature = server.arg("temperature").toFloat();
   humidity = server.arg("humidity").toFloat();
   soil_moist = server.arg("soil_moist").toFloat();
-  server.send(200, "text/html", "Collected");
+  server.send(200, "text/plain", "Collected");
   }
 }
 
