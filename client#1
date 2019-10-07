@@ -1,4 +1,4 @@
-#include <ESP8226WiFi.h>
+#include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
 const char* ssid = "FinalProject";
@@ -17,17 +17,36 @@ void setup(){
     Serial.println("Connected!");
     delay(500);
     }
+  }
+  
+  void loop(){
   
   Serial.println("Sending message to server:");
   delay(50);
+
+  HTTPClient http;
+  boolean client_free = true;
   
-  HTTPClient http_client;
-  String url = "8.8.8.8/clien1.php"   ;
+  if(client_free == true){
+    String free_str = "true";
+    String getData = "?status=" + free_str;
+    String link = "http://8.8.8.8/client1.php" + getData;
   
-  http.begin(url);
-  http.addHeader("Content-Type", "text/plain");
-  int httpCode = http.GET();
-  String response = http.getString();
-  Serial.println("Received message from server:" + response);
+    http.begin(link);
+    int httpCode = http.GET();
+    String new_job = http.getString();
   
-  http.end()
+    Serial.println (httpCode);
+    Serial.print ("New job:");
+    Serial.println (new_job);
+  
+    client_free=false;
+  
+    http.end();
+  }
+  
+  //DO NEW JOB
+  
+  //WHEN DONE SET FREE = TRUE
+  
+  }
