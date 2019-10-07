@@ -53,9 +53,9 @@ String html = R"=====(
     <p>Mikrokontroler prati vrijednosti ovih velicina i na osnovu njih pokrece sisteme za njihovu regulaciju.</p>
     <p>Sistemi za regulaciju takodje ce biti simulirani LE diodama.</p>
   
-    <h4>Temperatura:<span>*temperature</span>C</h4>
-    <h4>Vlaznost vazduha:<span>*humidity</span>[%]</h4>
-    <h4>Vlaznost zemljista:<span>*soil_moist</span>[%]</h4>
+    <h4>Temperatura:<span>(float)temperature</span>C</h4>
+    <h4>Vlaznost vazduha:<span>(float)humidity</span>[%]</h4>
+    <h4>Vlaznost zemljista:<span>(float)soil_moist</span>[%]</h4>
   
   </body>
   </html>
