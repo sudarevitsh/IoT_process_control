@@ -12,7 +12,8 @@ IPAddress subnet_mask (255, 255, 255, 0);
 
 ESP8266WebServer server(80);
 
-char webpage[] = R"=====(
+String webpage(float temperature, float humidity, float soil_moist){
+String webpage = R"=====(
 <!DOCTYPE html><html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <head>
@@ -55,6 +56,8 @@ char webpage[] = R"=====(
   </body>
   </html>
   )=====";
+  return webpage;
+}
 
 void handleClient1(){
   if(server.hasArg("true")){
