@@ -1,22 +1,33 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
-const char* ssid = "FinalProject";
-const char* pass = "12345678";
+const char* ssid = "Zavrsni_rad";
+const char* password = "12345678";
+
+const uitn16_t port = 80;
+
+IPAddress host (8,8,8,8);
+String host_str = "8.8.8.8";
+
+WiFiClient client; 
+String id = 1;
 
 void setup(){
-  Serial.begin (115200);
-  WiFi.begin(ssid, pass); 
+
+  pinMode(LED_BUILTIN, OUTPUT);
   
-  Serial.println("Connecting..");
-  while(WiFi.status() != WL_CONNECTED){
-    delay(100);
-    Serial.println(".");
-    }
-  if (WiFi.status() == WL_CONNECTED){  
-    Serial.println("Connected!");
-    delay(500);
-    }
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  
+  while(WiFi.status != WL_CONNECTED){
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+  }
+  
+  if (WiFi.status == WL_CONNECTED){
+    digitalWrite(LED_BUILTIN, HIGH);
   }
   
   void loop(){
