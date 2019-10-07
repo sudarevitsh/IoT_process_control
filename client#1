@@ -1,0 +1,33 @@
+#include <ESP8226WiFi.h>
+#include <ESP8266HTTPClient.h>
+
+const char* ssid = "FinalProject";
+const char* pass = "12345678";
+
+void setup(){
+  Serial.begin (115200);
+  WiFi.begin(ssid, pass); 
+  
+  Serial.println("Connecting..");
+  while(WiFi.status() != WL_CONNECTED){
+    delay(100);
+    Serial.println(".");
+    }
+  if (WiFi.status() == WL_CONNECTED){  
+    Serial.println("Connected!");
+    delay(500);
+    }
+  
+  Serial.println("Sending message to server:");
+  delay(50);
+  
+  HTTPClient http_client;
+  String url = "8.8.8.8/clien1.php"   ;
+  
+  http.begin(url);
+  http.addHeader("Content-Type", "text/plain");
+  int httpCode = http.GET();
+  String response = http.getString();
+  Serial.println("Received message from server:" + response);
+  
+  http.end()
