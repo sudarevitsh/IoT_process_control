@@ -3,13 +3,18 @@
 const char* ssid = "Zavrsni_rad";
 const char* password = "12345678";
 
-const uitn16_t port = 80;
+const uint16_t port = 80;
 
 IPAddress host (8,8,8,8);
 String host_str = "8.8.8.8";
 
 WiFiClient client; 
-String id = 1;
+String route = "/client2/";
+String id = "2";
+
+float temp;
+float humi;
+float moist;
 
 void setup(){
 
@@ -18,19 +23,75 @@ void setup(){
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   
-  while(WiFi.status != WL_CONNECTED){
+  while(WiFi.status() != WL_CONNECTED){
     digitalWrite(LED_BUILTIN, LOW);
     delay(200);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(200);
   }
   
-  if (WiFi.status == WL_CONNECTED){
+  if (WiFi.status() == WL_CONNECTED){
     digitalWrite(LED_BUILTIN, HIGH);
   }
-  
-  
-  
-  
+}
+
+void loop(){
+
+  WiFiClient client; 
+  if (client.connect(host_str, port)){
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
+    digitalWrite(LED_BUILTIN, HIGH);    
+   
+    String url = host_str + route;
+    String postData = "client_id=" + id + "&temperature=" + String(temp);
+      postData += "&humidity=" + String(humi) + "&moist=" + String(moist);
+      
+    client.println("POST HTTP/1.1");
+    client.println("Host: " + url);
+    client.println("Cache-Control: no-cache");
+    client.println("Content-Type: text/plain");
+    client.print("Content-Length: ");
+    client.println(postData.length());
+    client.println();
+    client.println(postData);
     
+    long interval = 4000;
+    unsigned long currentMillis = millis(), previousMillis = millis();
+    
+    while(!client.available()){
+      if((currentMillis - previousMillis) > interval){
+        client.stop();
+        return; 
+      }
+      currentMillis = millis();
+    }
+    
+    /*while (client.connected()){
+      if(client.available()){
+        char str = client.read();
+      }
+    }*/
+    
+    //drugi nacin da se uradi vise manje isto...
+    //mora se uvrstiti biblioteka <ESP8266HTTPClient.h>
+    
+  /*WiFiClient client; 
+      if (client.connect(host_str, port)){
+        digitalWrite(LED_BUILTIN, LOW);
+        delay(1000);
+        digitalWrite(LED_BUILTIN, HIGH);    
+   
+        String url = host_str + route;
+        String postData = "client_id=" + id + "&temperature=" + temp.toString();
+          postData += "&humidity=" + humi.toString() + "&moist=" + moist.toString();
+        
+        HTTPClient http;
+        http.begin (url);
+        http.addHeader ("Content-Type", "text/plain");
+        http.POST(postData);
+        http.end();*/
   
+  
+  }
+}
