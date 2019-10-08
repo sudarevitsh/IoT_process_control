@@ -1,6 +1,7 @@
 #include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 
-const char* ssid = "Zavrsni_rad";
+const char* ssid = "Boban";
 const char* password = "12345678";
 
 const uint16_t port = 80;
@@ -22,6 +23,8 @@ const int reg_moisture = 13; //GPIO13 = D7
 
 void setup(){
 
+  Serial.begin(115200);
+
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(reg_temperature, OUTPUT);
   pinMode(reg_humidity, OUTPUT);
@@ -40,67 +43,52 @@ void setup(){
   if (WiFi.status() == WL_CONNECTED){
     digitalWrite(LED_BUILTIN, HIGH);
   }
+
+  
 }
 
 void loop(){
 
-  WiFiClient client; 
-  if (client.connect(host_str, port)){
+  temp = random(10,50);
+  humi = random(10,80);
+  moist = random(5,90);
+
+  /*if (client.connect(host_str, port)){
     digitalWrite(LED_BUILTIN, LOW);
     delay(1000);
     digitalWrite(LED_BUILTIN, HIGH);    
+  }*/
    
-    String url = host_str + route;
-    String postData = "client_id=" + id + "&temperature=" + String(temp);
-      postData += "&humidity=" + String(humi) + "&moist=" + String(moist);
+  String url = host_str + route;
+  String data = "?client_id=" + id + "?temperature=" + String(temp);
+      data += "?humidity=" + String(humi) + "?moist=" + String(moist);
+  String msg = url + data;
+  HTTPClient http;
+  http.begin(msg);
+  int httpCode = http.GET();
+  String response = http.getString();
+
+  Serial.print(url); Serial.print(httpCode); Serial.println(response);
+  http.end();
+
+  delay(15000);
       
-    client.println("POST HTTP/1.1");
-    client.println("Host: " + url);
-    client.println("Cache-Control: no-cache");
-    client.println("Content-Type: text/plain");
-    client.print("Content-Length: ");
-    client.println(postData.length());
-    client.println();
-    client.println(postData);
-    
-    long interval = 4000;
-    unsigned long currentMillis = millis(), previousMillis = millis();
-    
-    while(!client.available()){
-      if((currentMillis - previousMillis) > interval){
-        client.stop();
-        return; 
-      }
-      currentMillis = millis();
-    }
-    
-    /*while (client.connected()){
-      if(client.available()){
-        char str = client.read();
-      }
-    }*/
-    
-    //drugi nacin da se uradi vise manje isto...
-    //mora se uvrstiti biblioteka <ESP8266HTTPClient.h>
-    
-  /*WiFiClient client; 
-      if (client.connect(host_str, port)){
-        digitalWrite(LED_BUILTIN, LOW);
-        delay(1000);
-        digitalWrite(LED_BUILTIN, HIGH);    
-   
-        String url = host_str + route;
-        String postData = "client_id=" + id + "&temperature=" + temp.toString();
-          postData += "&humidity=" + humi.toString() + "&moist=" + moist.toString();
-        
-        HTTPClient http;
-        http.begin (url);
-        http.addHeader ("Content-Type", "text/plain");
-        http.POST(postData);
-        http.end();*/
+  /*client.print ("GET ");
+  client.print (url);
+  client.print (" HTTP/1.1\r\n");
+  client.print ("Host: ");
+  client.print (host_str);
+  client.print ("\r\n");
+  client.print ("Content-Type: text/plain");
+  client.print ("Connection: close\r\n\r\n");
   
-  
+  while (client.available()){
+    String line = client.readStringUntil('\r'); Serial.print(line);
   }
+  Serial.println();
+  Serial.println("closing connection"); */
+  
+  
   
   if (temp < 5){
     digitalWrite(reg_temperature, HIGH);
