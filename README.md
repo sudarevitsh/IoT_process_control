@@ -24,7 +24,6 @@ Client2:
   - Connection and idicator set up;
   - Variables initialized;
   - HTML method is done;
-    // has 2 possible codes, need testing;
   - Regulators set up; 
   -------------------------------------------------
   + need sensor code;
