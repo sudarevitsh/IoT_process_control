@@ -38,16 +38,12 @@ void setup(){
     delay(200);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(200);
-  }
-  
-  if (WiFi.status() == WL_CONNECTED){
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
-
-  
+  }  
 }
 
 void loop(){
+
+  WiFiClient client;
 
   temp = random(10,50);
   humi = random(10,80);
@@ -58,37 +54,14 @@ void loop(){
     delay(1000);
     digitalWrite(LED_BUILTIN, HIGH);    
   }*/
-   
-  String url = host_str + route;
-  String data = "?client_id=" + id + "?temperature=" + String(temp);
-      data += "?humidity=" + String(humi) + "?moist=" + String(moist);
-  String msg = url + data;
-  HTTPClient http;
-  http.begin(msg);
-  int httpCode = http.GET();
-  String response = http.getString();
+  client.connect(host_str, port);
 
-  Serial.print(url); Serial.print(httpCode); Serial.println(response);
-  http.end();
+  String request =String("/client2/?client_id=" + id + "&temperature=" + String(temp) + "&humidity=" + String(humi) + "&moist=" + String(moist));
+  client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
 
-  delay(15000);
-      
-  /*client.print ("GET ");
-  client.print (url);
-  client.print (" HTTP/1.1\r\n");
-  client.print ("Host: ");
-  client.print (host_str);
-  client.print ("\r\n");
-  client.print ("Content-Type: text/plain");
-  client.print ("Connection: close\r\n\r\n");
+  Serial.println(request); //Serial.print(httpCode); Serial.println(response);
   
-  while (client.available()){
-    String line = client.readStringUntil('\r'); Serial.print(line);
-  }
-  Serial.println();
-  Serial.println("closing connection"); */
-  
-  
+  delay(1500);  
   
   if (temp < 5){
     digitalWrite(reg_temperature, HIGH);
