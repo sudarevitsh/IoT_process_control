@@ -1,32 +1,32 @@
 #include <ESP8266WiFi.h> 
 
 //parametri pristupne tačke
-  const char* ssid = "Zavrsni_Rad";     //naziv mreže
-  const char* password = "12345678";    //lozinka
+  const char* ssid = "Zavrsni_Rad";              //naziv mreže
+  const char* password = "12345678";             //lozinka
 
 //parametri webservera
-  const byte port = 80;             //broj porta
-  IPAddress host (8,8,8,8);             //ip adresa webservera
-  String host_str = "8.8.8.8";          //ista ip samo u obliku znakovnog niza
-  String route = "/client2/";           //ruta po kojoj klijent ostvaruje komunikaciju sa serverom
+  const byte port = 80;                          //broj porta
+  IPAddress host (8,8,8,8);                      //ip adresa webservera
+  String host_str = "8.8.8.8";                   //ista ip samo u obliku znakovnog niza
+  String route = "/client2/";                    //ruta po kojoj klijent ostvaruje komunikaciju sa serverom
 
 //definisanje wifi klijenta.
-  WiFiClient client;                    //inicijalizacija klijenta
-  String byte = 2;                      //identifikacioni broj koji server zahtjva od klijenta za komunikaciju
+  WiFiClient client;                             //inicijalizacija klijenta
+  String byte = 2;                               //identifikacioni broj koji server zahtjva od klijenta za komunikaciju
   
 //promjenljive u koje se unose rezultati senzorskih mjerenja
-  float temp;                           //temperatura
-  float humi;                           //vlažnost vazduha
-  float moist;                          //vlažnost zemljišta
+  float temp;                                    //temperatura
+  float humi;                                    //vlažnost vazduha
+  float moist;                                   //vlažnost zemljišta
 
 //promjenljive kojima se reguliše vremenski interval slanja zahtjeva na server
-  unsigned long req_timer = (10*1000);    //koliko često će se slati zahtjev i podaci.
-  int interval_counter = 1;               //brojač proteklih intervala, odgovara i broju poslanih zahtjeva plus 1
-  unsigned long time_counter;             //brojač vremena, ispisuje rezultat funkcije millis()
+  unsigned long req_timer = (10*1000);           //koliko često će se slati zahtjev i podaci.
+  int interval_counter = 1;                      //brojač proteklih intervala, odgovara i broju poslanih zahtjeva plus 1
+  unsigned long time_counter;                    //brojač vremena, ispisuje rezultat funkcije millis()
 
-  const int reg_temperature = 14;         //GPIO14 = D5, pin regulatora temperature
-  const int reg_humidity = 12;            //GPIO12 = D6, pin regulatora vlažnosti vazduha
-  const int reg_moisture = 13;            //GPIO13 = D7, pin regulatora vlažnosti zemljišta
+  const int reg_temperature = 14;                //GPIO14 = D5, pin regulatora temperature
+  const int reg_humidity = 12;                   //GPIO12 = D6, pin regulatora vlažnosti vazduha
+  const int reg_moisture = 13;                   //GPIO13 = D7, pin regulatora vlažnosti zemljišta
 
 //-----------------------------------------------------------------------------------------------------------------------
 
