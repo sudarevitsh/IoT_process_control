@@ -52,7 +52,7 @@ void setup(){
 
 void loop(){
 
-//praćenje vremena rada klijenta
+//praćenje vremena rada klijenta, na osnovu njega se određuje vremenski interval slanja zahtjeva na server
   time_counter = millis();
 
 //dodjela vrijednosti mjerenim veličinama
