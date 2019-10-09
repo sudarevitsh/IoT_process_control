@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-#define AP_SSID "Boban"
+#define AP_SSID "Zavrsni_Rad"
 #define AP_PASS "12345678"
 
 const char* ssid = AP_SSID;
