@@ -13,7 +13,7 @@
  
 //definisanje wifi klijenta 
   WiFiClient client;                      //inicijalizacija klijenta
-  String id = "1";                        //identifikacioni broj koji server zahtjeva od klijenta za komunikaciju
+  String byte = 1;                        //identifikacioni broj koji server zahtjeva od klijenta za komunikaciju
 
 //aktuatorski niz sa brojem pinova kojima se aktuatorima šalju upravljački signali
   #define ACT_NUMBER 6                    //dužina aktuatorskog niza
@@ -53,7 +53,7 @@ void loop(){
     client.connect(host_str, port);       //povezivanje sa serverom i slanje zahtjeva za novi posao
 
   //formiranje i slanje HTTP zahtjeva na server    
-    String request = String(route + "?client_id=" + id + "client_free=" + String(client_free));
+    String request = String(route + "?client_id=" + String(id) + "client_free=" + String(client_free));
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
     delay(30);
 
