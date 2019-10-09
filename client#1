@@ -6,7 +6,7 @@
   const char* password = "12345678";      //lozinka
 
 //parametri webservera
-  const uint16_t port = 80;               //broj porta      
+  const byte port = 80;               //broj porta      
   IPAddress host (8,8,8,8);               //ip adresa webservera
   String host_str = "8.8.8.8";            //ista adresa samo u obliku znakovnog niza
   String route = "/client1/";             //ruta po kojoj klijent ostvaruje komunikaciju sa serverom
