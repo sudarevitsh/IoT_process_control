@@ -1,65 +1,62 @@
 #include <ESP8266WiFi.h>
 
-const char* ssid = "Zavrsni_Rad";
-const char* password = "12345678";
 
-const uitn16_t port = 80;
+//parametri pristupne tačke
+  const char* ssid = "Zavrsni_Rad";       //naziv mreže
+  const char* password = "12345678";      //lozinka
 
-IPAddress host (8,8,8,8);
-String host_str = "8.8.8.8";
+//parametri webservera
+  const uitn16_t port = 80;               //broj porta      
+  IPAddress host (8,8,8,8);               //ip adresa webservera
+  String host_str = "8.8.8.8";            //ista adresa samo u obliku znakovnog niza
+  String route = "/client1/";             //ruta po kojoj klijent ostvaruje komunikaciju sa serverom
+ 
+//definisanje wifi klijenta 
+  WiFiClient client;                      //inicijalizacija klijenta
+  String id = "1";                        //identifikacioni broj koji server zahtjeva od klijenta za komunikaciju
 
-WiFiClient client; 
-String id = "1";
-
-#define ACT_NUMBER 6
-const int act[ACT_NUMBER] = [1, 3, 15, 13, 12, 14];
+//aktuatorski niz sa brojem pinova kojima se aktuatorima šalju upravljački signali
+  #define ACT_NUMBER 6                    //dužina aktuatorskog niza
+  const int act[ACT_NUMBER] = [1, 3, 15, 13, 12, 14];
 
 void setup(){
 
+//definisanje izlaza
   pinMode(LED_BUILTIN, OUTPUT);
-  
   for (int i = 0, i < ACT_NUMBER, i++){
     pinMode(act[i], OUTPUT);
   }
-  
+
+//podešavanje klijenta (stanice) i povezivanje na pristupnu tačku
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   
+//rutina blinkanja ugrađene lampice dok se klijent ne poveže sa serverom, prestaje nakon povezivanja  
   while(WiFi.status != WL_CONNECTED){
     digitalWrite(LED_BUILTIN, LOW);
     delay(200);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(200);
   }
+}
   
-  if (WiFi.status == WL_CONNECTED){
-    digitalWrite(LED_BUILTIN, HIGH);
-  }
+void loop(){
   
-  void loop(){
-  
-  Serial.println("Sending message to server:");
-  delay(50);
-
-  HTTPClient http;
+//definisanje stanja klijenta, da li je slobodan za novi posao ili ne
   boolean client_free = true;
   
+//povezivanje klijenta sa serverom, a zatim traženje novog posla za izvršavanje
   if(client_free == true){
-    String free_str = "true";
-    String getData = "?status=" + free_str;
-    String link = "http://8.8.8.8/client1.php" + getData;
-  
-    http.begin(link);
-    int httpCode = http.GET();
-    String new_job = http.getString();
-  
-    Serial.println (httpCode);
-    Serial.print ("New job:");
-    Serial.println (new_job);
-  
-    client_free=false;
-  
-    http.end();
+    client_free = false;                  //klijent je zauzet
+    client.connect(host_str, port);       //povezivanje sa serverom i slanje zahtjeva za novi posao
+
+//formiranje i slanje HTTP zahtjeva na server    
+    String request = String(route + "?client_id=" + id + "client_free=" + String(client_free));
+    client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
+    
+    //OBRADA ODGOVORA SERVERA!!!
+    
+    client.stop();                        //prekid veze
   }
   
   //DO NEW JOB
