@@ -2,8 +2,8 @@
 
 
 //parametri pristupne tačke
-  const char* ssid = "Zavrsni_Rad";       //naziv mreže
-  const char* password = "12345678";      //lozinka
+  const char ssid = "Zavrsni_Rad";       //naziv mreže
+  const char password = "12345678";      //lozinka
 
 //parametri webservera
   const byte port = 80;               //broj porta      
