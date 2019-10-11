@@ -11,15 +11,25 @@
 
 //definisanje IP adrese (koja je i gateway) i maske pristupne tačke
   IPAddress ap_ip (8, 8, 8, 8);                               //IP adresa pristupne tačke
-  IPAddress subnet_mask (255, 255, 255, 0);                   //mrežna maska 
+  IPAddress subnet_mask (255, 255, 255, 0);                   //podmrežna maska 
 
 //inicijalizacija webservera i porta za komunikaciju
   ESP8266WebServer server(80);
 
 //vrijednosti veličina koje mjeri i šalje klijent#2
-  float temperature = 0;                                      //vrijednost temperature koju pošalje klijent
-  float humidity = 0;                                         //vrijednost vlažnosti vazduha koju pošalje klijent
-  float soil_moist = 0;                                       //vrijednost vlažnosti zemljišta koju pošalje klijent  
+  float temperature = 0;                                      //promjenljiva temperature koju pošalje klijent
+  float humidity = 0;                                         //promjenljiva vlažnosti vazduha koju pošalje klijent
+  float soil_moist = 0;                                       //promjenljiva vlažnosti zemljišta koju pošalje klijent  
+
+  #define PROCESS1 ""
+  #define PROCESS2 ""
+  #define PROCESS3 ""
+
+  String user_process1 = "";
+  String user_process2 = "";
+  String user_process3 = "";
+  String user_process4 = "";
+  String user_process5 = "";
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -84,9 +94,9 @@
 //obrada i odgovor na zahtjev klijenta#1
   String new_job;
 //provjera ID-a i zauzetosti klijenta, ako je slobodan dobiće novi posao
-  void handleClient1(String new_job){
-    if(server.arg("free") == "true" && server.arg("client_id") == "1"){
-      server.send(200, "text/plain", new_job);                //odgovor servera na zahtjev klijenta sa novim poslom
+  void handleClient1(){
+    if(server.arg("client_free") == "true" && server.arg("client_id") == "1"){
+      server.send(200, "text/plain", "new_job");                //odgovor servera na zahtjev klijenta sa novim poslom
     }
   }  
 
@@ -113,7 +123,7 @@ void setup(){
   WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);               //IP, gateway, subnet maks
   
 //definisanje ruta koje server prepoznaje i vrsta zahtjeva koje obrađuje  
-//  server.on("/client1/", HTTP_GET, handleClient1);          //klijent#1
+  server.on("/client1/", HTTP_GET, handleClient1);          //klijent#1
   server.on("/client2/", HTTP_GET, handleClient2);            //klijent#2
   server.on("/", handleRoot);                                 //bilo koji klijent koji otvori IP adresu
   
