@@ -17,16 +17,15 @@
 
 //aktuatorski niz sa brojem pinova kojima se aktuatorima šalju upravljački signali
   #define ACT_NUMBER 6                    //dužina aktuatorskog niza
-  int act[ACT_NUMBER] = {1, 3, 15, 13, 12, 14};
+  int act[ACT_NUMBER] = {1, 3, 15, 13, 12, 14};  //broj GPIO pinova
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
-Serial.begin(115200);
 
 //definisanje izlaza
     pinMode(LED_BUILTIN, OUTPUT);
-    for (int i = 0; i < ACT_NUMBER; i++){
+    for (int i = 0; i < ACT_NUMBER - 1; i++){
       pinMode(act[i], OUTPUT);
     }
 
