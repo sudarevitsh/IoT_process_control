@@ -21,16 +21,6 @@
   float humidity = 0;                                         //promjenljiva vlažnosti vazduha koju pošalje klijent
   float soil_moist = 0;                                       //promjenljiva vlažnosti zemljišta koju pošalje klijent  
 
-  #define PROCESS1 ""
-  #define PROCESS2 ""
-  #define PROCESS3 ""
-
-  String user_process1 = "";
-  String user_process2 = "";
-  String user_process3 = "";
-  String user_process4 = "";
-  String user_process5 = "";
-
 //-----------------------------------------------------------------------------------------------------------------------
 
 //funkcija u kojoj je definisan izgled web stranice koja se prikazuje prilikom pristupa serveru
@@ -61,9 +51,9 @@
       <p>Postoje 3 vec definisana procesa koja mogu da se pozovu, 
       ali i polje za unos kako bi se izmjenio neki od njih.</p>
   
-      <p><button class="button_class" href="/process1" id=1>Proces #1</button></p>
-      <p><button class="button_class" href="/process2" id=2>Proces #2</button></p>
-      <p><button class="button_class" href="/process3" id=3>Proces #3</button></p>
+      <p><button class="button_class" href="/process1">Proces #1</button></p>
+      <p><button class="button_class" href="/process2">Proces #2</button></p>
+      <p><button class="button_class" href="/process3">Proces #3</button></p>
       <p><input class="input_class"></input></p>
       <p><button class="button_class" style="width:50%;">Izmjeni proces</button></p>
   
@@ -115,6 +105,25 @@
     server.send(200, "text/html", webpage(temperature, humidity, soil_moist)); //odgovor servera web stranicom
   }
 
+//kada se zatraži neka nepoznara ruta na serveru
+  void handleNotFound(){
+    server.send(404, "text/plain", "Nije pronadjeno");
+  }
+
+  void handleProcess1(){
+    server.send(200, "text/plain", "Proces 1 je dodan u listu poslova"); 
+  }
+
+  void handleProcess2(){
+    server.send(200, "text/plain", "Proces 2 je dodan u listu poslova"); 
+  }
+
+  void handleProcess3(){
+    server.send(200, "text/plain", "Proces 3 je dodan u listu poslova"); 
+  }
+ 
+  void handleInput(){
+    server.send(200, "text/plain", "Unešeni proces je dodan u listu poslova")
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
@@ -124,7 +133,12 @@ void setup(){
   
 //definisanje ruta koje server prepoznaje i vrsta zahtjeva koje obrađuje  
   server.on("/client1/", HTTP_GET, handleClient1);          //klijent#1
-  server.on("/client2/", HTTP_GET, handleClient2);            //klijent#2
+  server.on("/client2/", HTTP_GET, handleClient2);          //klijent#2
+  
+  server.on("/process1", HTTP_GET, handleProcess1);
+  server.on("/process2", HTTP_GET, handleProcess2);
+  server.on("/process3", HTTP_GET, handleProcess3);
+  
   server.on("/", handleRoot);                                 //bilo koji klijent koji otvori IP adresu
   
   server.begin();                                             //pokretanje servera
