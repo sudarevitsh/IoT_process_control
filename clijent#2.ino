@@ -12,7 +12,7 @@
 
 //definisanje wifi klijenta.
   WiFiClient client;                             //inicijalizacija klijenta
-  String byte = 2;                               //identifikacioni broj koji server zahtjva od klijenta za komunikaciju
+  byte id = 2;                               //identifikacioni broj koji server zahtjva od klijenta za komunikaciju
   
 //promjenljive u koje se unose rezultati senzorskih mjerenja
   float temp;                                    //temperatura
@@ -70,7 +70,7 @@ void loop(){
       client.connect(host_str, port); 
     
   //način slanja podataka: ruta + id + temperatura + vlažnost vazduha + vlažnost zemljišta
-      String request = String( route + "?client_id=" + String(id) + "&temperature=" + String(temp) + "&humidity=" + String(humi) + "&moist=" + String(moist));
+      String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(temp) + "&humidity=" + String(humi) + "&moist=" + String(moist));
  
   //standardni način slanja HTTP zahtjeva na server  
       client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
