@@ -103,7 +103,7 @@
   String new_job;
 //provjera ID-a i zauzetosti klijenta, ako je slobodan dobiće novi posao
   void handleClient1(){
-    if(server.arg("client_id") == "1" && server.arg("client_free") == "ture"){
+    if(server.arg("client_id") == "1" && server.arg("client_free") == "1"){
       server.send(200, "text/plain", "new_job");                //odgovor servera na zahtjev klijenta sa novim poslom
     }
   }  
