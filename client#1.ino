@@ -1,5 +1,11 @@
 #include <ESP8266WiFi.h>
 
+#define LED1 1
+#define LED2 3
+#define LED3 15
+#define LED4 13
+#define LED5 12
+#define LED6 14
 
 //parametri pristupne tačke
   const char* ssid = "Zavrsni_Rad";       //naziv mreže
@@ -17,18 +23,20 @@
   String new_job;
 
 //aktuatorski niz sa brojem pinova kojima se aktuatorima šalju upravljački signali
-  #define ACT_NUMBER 6                    //dužina aktuatorskog niza
-  int act[ACT_NUMBER] = {1, 3, 15, 13, 12, 14};  //broj GPIO pinova
+                     //dužina aktuatorskog niza
+  byte act[] = {LED1, LED2, LED3, LED4, LED5, LED6};  //broj GPIO pinova
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
-
+Serial.begin(115200);
 //definisanje izlaza
     pinMode(LED_BUILTIN, OUTPUT);
-    for (int i = 0; i < ACT_NUMBER - 1; i++){
+    
+    /*for (int i = 0; i < 5; i++){
       pinMode(act[i], OUTPUT);
-    }
+      Serial.println(i);
+    }*/ 
 
 //podešavanje klijenta (stanice) i povezivanje na pristupnu tačku
     WiFi.mode(WIFI_STA);
@@ -56,7 +64,7 @@ void loop(){
       client.connect(host_str, port);       //povezivanje sa serverom i slanje zahtjeva za novi posao
 
   //formiranje i slanje HTTP zahtjeva na server    
-      String request = String(route + "?client_id=" + String(id) + "client_free=" + String(client_free));
+      String request = String(route + "?client_id=" + String(id) + "&client_free=" + String(client_free));
       client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));
       delay(5); 
       
@@ -77,14 +85,9 @@ void loop(){
       while (client.available()) {
         new_job = client.readStringUntil('\r'); 
         Serial.print(new_job);
+        
       }
     
       client_free = false;                  //klijent je zauzet
   }
 }
-  
-  //DO NEW JOB
-  
-  //WHEN DONE SET FREE = TRUE
-  
-  
