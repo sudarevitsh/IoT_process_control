@@ -21,6 +21,15 @@
   float humidity = 0;                                         //promjenljiva vlažnosti vazduha koju pošalje klijent
   float soil_moist = 0;                                       //promjenljiva vlažnosti zemljišta koju pošalje klijent  
 
+  String Ain = "";
+  String Bin = "";
+  String Cin = "";
+  String Din = "";
+  String Ein = "";
+  String Fin = "";
+  String Xin = "";
+
+  int proces_number = 0;
 //-----------------------------------------------------------------------------------------------------------------------
 
 //funkcija u kojoj je definisan izgled web stranice koja se prikazuje prilikom pristupa serveru
@@ -33,36 +42,45 @@
     <head>
     <title>Zavrsni projekat</title>
     <style>
-      body {background-color: #CFCCCC ; text-align: center; color: black; font-family: Arial, serif;}
+      body {background-color: #D8D8D8 ; text-align: center; color: black; font-family: Arial, serif;}
     
-      .input_class{width: 90%; height: 80px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
-      border: 2px #854D41; border-radius: 5px; background-color: white; color: #854D41;}
+      .input_class{width: 70%; height: 30px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
+      border: 2px; border-color: black; border-radius: 5px; background-color: white; color: #854D41; text-align: center;}
     
-      .button_class{width: 90%; height:35px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
-      border: 2px #854D41; border-radius: 5px; background-color: white; color: #854D41;}
+      .button_class{width: 50%; height:35px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
+      border: 2px #FFFFFF; border-radius: 5px; background-color: white; color: #854D41;}
+      
+      .field_class{border-color: black;}
     </style>
     </head>
   
     <body>
       <h2>ZAVRSNI RAD</h2>
       <h3>Klijent #1</h3>
-      <p>Klijent koji upravlja izvrsavanjem nekog industrijskog procesa,
-      u ovom slucaju se koriste LE diode za simulaciju upravljanja izvrsnim elementima.</p>
-      <p>Postoje 3 vec definisana procesa koja mogu da se pozovu, 
-      ali i polje za unos kako bi se izmjenio neki od njih.</p>
-  
-      <p><button class="button_class" href="/process1">Proces #1</button></p>
-      <p><button class="button_class" href="/process2">Proces #2</button></p>
-      <p><button class="button_class" href="/process3">Proces #3</button></p>
-      <p><input class="input_class"></input></p>
-      <p><button class="button_class" style="width:50%;">Izmjeni proces</button></p>
-  
+      <p>Klijent koji upravlja sa 6 LE dioda. LED se koriste kako bi se samo simulirao rad nekog aktuatora. Umjesto njih mogu biti releji koji upravljaju sa nekim drugim aktuatorima ili slicno.</p>
+      <p>Način unosenja zadataka nekoj od lampica:</p>
+      <p>A+0,A-15,A+25,A-30...</p>
+      <p>Na ovaj način bi se lampica A upalila u početnom trenutku, a nakon 15 sekundi ugasila, upalila na 25. sekundi, pa ugasila na 30. </p>
+  <fieldset class="field_class">
+  <legend>Unesi novi proces</legend>
+  <form action="/input" method="GET">
+      <p>A:<input class="input_class" name="Ain"></input></p>
+      <p>B:<input class="input_class" name="Bin"></input></p>
+      <p>C:<input class="input_class" name="Cin"></input></p>
+      <p>D:<input class="input_class" name="Din"></input></p>
+      <p>E:<input class="input_class" name="Ein"></input></p>
+      <p>F:<input class="input_class" name="Fin"></input></p>
+      <p>Broj ponavljanja:<input class="input_class" name="Xin" style=width:30%;></input></p>
+      <p><button class="button_class" value="Submit">Posalji proces na server</button></p>
+  </form>
+  </fieldset>
       <h3>Klijent #2</h3>
       <p>Klijent koji upravlja sa mikroklimom nekog objekta i prati vrijednost odredjenih velicina.</p>
       <p>Mikrokontroler prati vrijednosti ovih velicina i na osnovu njih pokrece sisteme za njihovu regulaciju.</p>
       <p>Sistemi za regulaciju takodje ce biti simulirani LE diodama.</p>
       )=====";
-
+    
+      html +="<fieldset class=\"field_class\"><legend>Izmjerene vrijednosti</legend>\n";
       html += "<h4>Temperatura:<span>";
       html += (float)temperature;
       html += "</span>C</h4>\n";
@@ -73,7 +91,7 @@
       html += (float)soil_moist;
       html += "</span>[%]</h4>\n";
   
-      html += "</body>\n";
+      html += "</fieldset></body>\n";
       html += "</html>\n";
 
     return html;
@@ -109,21 +127,17 @@
   void handleNotFound(){
     server.send(404, "text/plain", "Nije pronadjeno");
   }
-
-  void handleProcess1(){
-    server.send(200, "text/plain", "Proces 1 je dodan u listu poslova"); 
-  }
-
-  void handleProcess2(){
-    server.send(200, "text/plain", "Proces 2 je dodan u listu poslova"); 
-  }
-
-  void handleProcess3(){
-    server.send(200, "text/plain", "Proces 3 je dodan u listu poslova"); 
-  }
  
   void handleInput(){
-    server.send(200, "text/plain", "Unešeni proces je dodan u listu poslova")
+    Ain = server.arg("Ain");
+    Bin = server.arg("Bin");
+    Cin = server.arg("Cin");
+    Din = server.arg("Din");
+    Ein = server.arg("Ein");
+    Fin = server.arg("Fin");
+    Xin = server.arg("Xin");
+    server.send(200, "text/plain", "Unešeni proces je dodan u listu poslova");
+  }
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
@@ -134,11 +148,7 @@ void setup(){
 //definisanje ruta koje server prepoznaje i vrsta zahtjeva koje obrađuje  
   server.on("/client1/", HTTP_GET, handleClient1);          //klijent#1
   server.on("/client2/", HTTP_GET, handleClient2);          //klijent#2
-  
-  server.on("/process1", HTTP_GET, handleProcess1);
-  server.on("/process2", HTTP_GET, handleProcess2);
-  server.on("/process3", HTTP_GET, handleProcess3);
-  
+  server.on("/input", HTTP_GET, handleInput);
   server.on("/", handleRoot);                                 //bilo koji klijent koji otvori IP adresu
   
   server.begin();                                             //pokretanje servera
