@@ -1,19 +1,11 @@
 #include <ESP8266WiFi.h>
 
-#define LED1 1
-#define LED2 3
-#define LED3 15
-#define LED4 13
-#define LED5 12
-#define LED6 14
-
 //parametri pristupne tačke
   const char* ssid = "Zavrsni_Rad";       //naziv mreže
   const char* password = "12345678";      //lozinka
 
 //parametri webservera
   const byte port = 80;               //broj porta      
-  IPAddress host (8,8,8,8);               //ip adresa webservera
   String host_str = "8.8.8.8";            //ista adresa samo u obliku znakovnog niza
   String route = "/client1/";             //ruta po kojoj klijent ostvaruje komunikaciju sa serverom
  
@@ -22,9 +14,8 @@
   byte id = 1;                        //identifikacioni broj koji server zahtjeva od klijenta za komunikaciju
   String new_job;
 
-//aktuatorski niz sa brojem pinova kojima se aktuatorima šalju upravljački signali
-                     //dužina aktuatorskog niza
-  byte act[] = {LED1, LED2, LED3, LED4, LED5, LED6};  //broj GPIO pinova
+//definisanje stanja klijenta, da li je slobodan za novi posao ili ne
+  boolean client_free = true;
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -32,11 +23,7 @@ void setup(){
 Serial.begin(115200);
 //definisanje izlaza
     pinMode(LED_BUILTIN, OUTPUT);
-    
-    /*for (int i = 0; i < 5; i++){
-      pinMode(act[i], OUTPUT);
-      Serial.println(i);
-    }*/ 
+   
 
 //podešavanje klijenta (stanice) i povezivanje na pristupnu tačku
     WiFi.mode(WIFI_STA);
@@ -54,9 +41,7 @@ Serial.begin(115200);
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-  
-//definisanje stanja klijenta, da li je slobodan za novi posao ili ne
-    boolean client_free = true;
+     
     String new_job;
   
 //povezivanje klijenta sa serverom, a zatim traženje novog posla za izvršavanje
