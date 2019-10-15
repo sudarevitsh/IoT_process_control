@@ -6,11 +6,9 @@ AccessPoint&WebServer:
   - WebPage set up;
   - Client1&2 requests set up;
   -------------------------------------------------
-  + need to edit buttons to do something;
-  + need to store processes in some data type;
-  + need to handle processes (first in-first out);
-  //file.txt? .. php script? ..
-  
+  + store form data in variables
+  + need to handle processes (first in-first out);???
+    
 Client1:
   - Basics set up;
   - Connection and indicator set up;
