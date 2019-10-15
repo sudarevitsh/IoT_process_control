@@ -72,6 +72,14 @@ void loop(){
         Serial.print(new_job);
         
       }
+      
+      /*while (client.connected()) {
+      String line = client.readStringUntil('\n');
+      if (line == "\r") {
+      Serial.println("headers received");
+      break;
+      }
+      }*/
     
       client_free = false;                  //klijent je zauzet
   }
