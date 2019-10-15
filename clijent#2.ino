@@ -1,4 +1,10 @@
 #include <ESP8266WiFi.h> 
+#include "DHT.h"
+
+#define DHT_PIN 13
+#define DHTTYPE DHT21
+
+DHT dht(DHT_PIN, DHTTYPE);
 
 //parametri pristupne tačke
   const char* ssid = "Zavrsni_Rad";              //naziv mreže
@@ -14,27 +20,30 @@
   byte id = 2;                               //identifikacioni broj koji server zahtjva od klijenta za komunikaciju
   
 //promjenljive u koje se unose rezultati senzorskih mjerenja
-  float temp;                                    //temperatura
-  float humi;                                    //vlažnost vazduha
-  float moist;                                   //vlažnost zemljišta
+  float dht_temp;                                    //temperatura
+  float dht_humi;                                    //vlažnost vazduha
+  float soil_moist;                                   //vlažnost zemljišta
 
 //promjenljive kojima se reguliše vremenski interval slanja zahtjeva na server
   unsigned long req_timer = (10*1000);           //koliko često će se slati zahtjev i podaci.
   int interval_counter = 1;                      //brojač proteklih intervala, odgovara i broju poslanih zahtjeva plus 1
   unsigned long time_counter;                    //brojač vremena, ispisuje rezultat funkcije millis()
 
-  const int reg_temperature = 14;                //GPIO14 = D5, pin regulatora temperature
-  const int reg_humidity = 12;                   //GPIO12 = D6, pin regulatora vlažnosti vazduha
-  const int reg_moisture = 13;                   //GPIO13 = D7, pin regulatora vlažnosti zemljišta
+  const int REG_TEMP = 14;                //GPIO14 = D5, pin regulatora temperature
+  const int REG_HUMI = 12;                   //GPIO12 = D6, pin regulatora vlažnosti vazduha
+  const int REG_MOIST = 15;                   //GPIO13 = D7, pin regulatora vlažnosti zemljišta
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
 //definisanje izlaza
     pinMode(LED_BUILTIN, OUTPUT);         
-    pinMode(reg_temperature, OUTPUT);
-    pinMode(reg_humidity, OUTPUT);
-    pinMode(reg_moisture, OUTPUT);
+    pinMode(REG_TEMP, OUTPUT);
+    pinMode(REG_HUMI, OUTPUT);
+    pinMode(REG_MOIST, OUTPUT);
+  
+    dht.begin();
+    delay(500);
  
 //podešavanje klijenta (stanice) i povezivanje na pristupnu tačku
     WiFi.mode(WIFI_STA);
@@ -57,9 +66,9 @@ void loop(){
     time_counter = millis();
 
 //dodjela vrijednosti mjerenim veličinama
-    temp = random(10,50);
-    humi = random(10,80);
-    moist = random(5,90);
+    dht_humi = dht.readHumidity();
+    dht_temp = dht.readTemperature();
+    soil_moist = (float)random(1,99);
 
 //regulisanje vremenskog intervala zahtjeva, objasniti dodatno...
     if(time_counter > (req_timer * interval_counter)){
@@ -69,7 +78,7 @@ void loop(){
       client.connect(host_str, port); 
     
   //način slanja podataka: ruta + id + temperatura + vlažnost vazduha + vlažnost zemljišta
-      String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(temp) + "&humidity=" + String(humi) + "&moist=" + String(moist));
+      String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temp) + "&humidity=" + String(dht_humi) + "&moist=" + String(soil_moist));
  
   //standardni način slanja HTTP zahtjeva na server  
       client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
@@ -77,26 +86,26 @@ void loop(){
    }
   
 //pokretanje regulatora temperature na osnovu neke željene vrijednosti temperature  
-    if (temp < 5){
-      digitalWrite(reg_temperature, HIGH);       //slanje upravljačkog signala na definisani pin
+    if (dht_temp < 5){
+      digitalWrite(REG_TEMP, HIGH);       //slanje upravljačkog signala na definisani pin
     }
-    else if (temp >= 5){
-      digitalWrite(reg_temperature, LOW);
+    else if (dht_temp >= 5){
+      digitalWrite(REG_TEMP, LOW);
     }
 
 //pokretanje regulatora vlažnosti vazduha na osnovu zadane vrijednosti vlažnosti vazduha
-    if (humi < 50){
-      digitalWrite(reg_humidity, HIGH);          //slanje upravljačkog signala na definisani pin
+    if (dht_humi < 50){
+      digitalWrite(REG_HUMI, HIGH);          //slanje upravljačkog signala na definisani pin
     }
-    else if (humi >= 50){
-      digitalWrite(reg_temperature, LOW);
+    else if (dht_humi >= 50){
+      digitalWrite(REG_HUMI, LOW);
     }
   
 //pokretanje regulatora vlažnosti zemljišta na osnovu zadane vrijednosti vlažnosti zemljišta
-    if (moist < 40){
-      digitalWrite(reg_moisture, HIGH);          //slanje upravljačkog signala na definisani pin  
+    if (soil_moist < 40){
+      digitalWrite(REG_MOIST, HIGH);          //slanje upravljačkog signala na definisani pin  
     }
-    else if (temp >= 40){
-      digitalWrite(reg_temperature, LOW);
+    else if (soil_moist >= 40){
+      digitalWrite(REG_MOIST, LOW);
     }
 }
