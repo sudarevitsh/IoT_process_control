@@ -6,8 +6,7 @@
 
 //parametri webservera
   const byte port = 80;                          //broj porta
-  IPAddress host (8,8,8,8);                      //ip adresa webservera
-  String host_str = "8.8.8.8";                   //ista ip samo u obliku znakovnog niza
+  String host_str = "8.8.8.8";                   //IP webservera 
   String route = "/client2/";                    //ruta po kojoj klijent ostvaruje komunikaciju sa serverom
 
 //definisanje wifi klijenta.
