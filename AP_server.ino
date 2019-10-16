@@ -20,22 +20,21 @@
   float temperature = 0;                                      //promjenljiva temperature koju pošalje klijent
   float humidity = 0;                                         //promjenljiva vlažnosti vazduha koju pošalje klijent
   float soil_moist = 0;                                       //promjenljiva vlažnosti zemljišta koju pošalje klijent  
+  
+  float reg_temp = 0;
+  float reg_humi = 0;
+  float reg_moist = 0;
 
-  String Ain = "";
-  String Bin = "";
-  String Cin = "";
-  String Din = "";
-  String Ein = "";
-  String Fin = "";
-  String Xin = "";
+  String process = "";
+  String x = "";
 
-  int proces_number = 0;
+  
 //-----------------------------------------------------------------------------------------------------------------------
 
 //funkcija u kojoj je definisan izgled web stranice koja se prikazuje prilikom pristupa serveru
 //funkcija za parametre uzima vrijednosti primljene sa klijenta#2
 
-  String webpage(float temperature, float humidity, float soil_moist){
+  String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
   String html = R"=====(
   <!DOCTYPE html><html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,8 +45,8 @@
     
       .input_class{width: 70%; height: 30px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
       border: 2px; border-color: black; border-radius: 5px; background-color: white; color: #854D41; text-align: center;}
-    
-      .button_class{width: 50%; height:35px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
+          
+      .button_class{width: 35%; height:35px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box;
       border: 2px #FFFFFF; border-radius: 5px; background-color: white; color: #854D41;}
       
       .field_class{border-color: black;}
@@ -64,13 +63,9 @@
   <fieldset class="field_class">
   <legend>Unesi novi proces</legend>
   <form action="/input" method="GET">
-      <p>A:<input class="input_class" name="Ain"></input></p>
-      <p>B:<input class="input_class" name="Bin"></input></p>
-      <p>C:<input class="input_class" name="Cin"></input></p>
-      <p>D:<input class="input_class" name="Din"></input></p>
-      <p>E:<input class="input_class" name="Ein"></input></p>
-      <p>F:<input class="input_class" name="Fin"></input></p>
-      <p>Broj ponavljanja:<input class="input_class" name="Xin" style=width:30%;></input></p>
+      <p>Proces:<input class="input_class" name="process"></input></p>
+      
+      <p>Broj ponavljanja:<input class="input_class" name="x" style=width:15%;></input></p>
       <p><button class="button_class" value="Submit">Posalji proces na server</button></p>
   </form>
   </fieldset>
@@ -80,18 +75,25 @@
       <p>Sistemi za regulaciju takodje ce biti simulirani LE diodama.</p>
       )=====";
     
-      html +="<fieldset class=\"field_class\"><legend>Izmjerene vrijednosti</legend>\n";
-      html += "<h4>Temperatura:<span>";
-      html += (float)temperature;
-      html += "</span>C</h4>\n";
-      html += "<h4>Vlaznost vazduha:<span>";
-      html += (float)humidity;
-      html += "</span>[%]</h4>\n";
-      html += "<h4>Vlaznost zemljista:<span id=\"soil_moist\">";
-      html += (float)soil_moist;
-      html += "</span>[%]</h4>\n";
+      html +="<fieldset class=\"field_class\"><legend>Izmjerene vrijednosti</legend><form action=\"/regulation\" method=\"GET\">\n";
+      html += "<h4>Temperatura:";
+      html += (float)TEMPERATURE;
+      html += "C</h4><h5>Podesavanje regulatora temperature:";
+      html += (float)REG_TEMP;
+      html += "C /<input class=\"input_class\" style=width:10%; name=\"reg_temp\"></h5>\n";
+      html += "<h4>Vlaznost vazduha:";
+      html += (float)HUMIDITY;
+      html += "%</h4><h5>Podesavanje regulatora vlaznosti vazduha:";
+      html += (float)REG_HUMI;
+      html += "% /<input class=\"input_class\" style=width:10%; name= \"reg_humi\"></h5>\n";
+      html += "<h4>Vlaznost zemljista:";
+      html += (float)SOIL_MOIST;
+      html += "%</h4><h5>Podesavanje regulatora vlaznosti zemljista:";
+      html += (float)REG_MOIST;
+      html += "% /<input class=\"input_class\" style=width:10%; name=\"reg_moist\"></h5>\n";
+      html += "<p><button class=\"button_class\" value=\"Submit\">Izmjeni vrijednosti</button></p>";
   
-      html += "</fieldset></body>\n";
+      html += "</form></fieldset></body>\n";
       html += "</html>\n";
 
     return html;
@@ -120,7 +122,7 @@
 
 //odgovor kada se zatraži samo IP adresa servera (web stranica)
   void handleRoot(){
-    server.send(200, "text/html", webpage(temperature, humidity, soil_moist)); //odgovor servera web stranicom
+    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); //odgovor servera web stranicom
   }
 
 //kada se zatraži neka nepoznara ruta na serveru
@@ -129,14 +131,16 @@
   }
  
   void handleInput(){
-    Ain = server.arg("Ain");
-    Bin = server.arg("Bin");
-    Cin = server.arg("Cin");
-    Din = server.arg("Din");
-    Ein = server.arg("Ein");
-    Fin = server.arg("Fin");
-    Xin = server.arg("Xin");
+    process = server.arg("process");
+    x = server.arg("x");
     server.send(200, "text/plain", "Unešeni proces je dodan u listu poslova");
+  }
+
+  void handleRegulation(){
+    reg_temp = server.arg("reg_temp").toFloat();
+    reg_humi = server.arg("reg_humi").toFloat();
+    reg_moist = server.arg("reg_moist").toFloat();
+    server.send(200, "text/plain", "Vrijednosti promjenjene!");
   }
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -149,6 +153,7 @@ void setup(){
   server.on("/client1/", HTTP_GET, handleClient1);          //klijent#1
   server.on("/client2/", HTTP_GET, handleClient2);          //klijent#2
   server.on("/input", HTTP_GET, handleInput);
+  server.on("/regulation", HTTP_GET, handleRegulation);
   server.on("/", handleRoot);                                 //bilo koji klijent koji otvori IP adresu
   
   server.begin();                                             //pokretanje servera
