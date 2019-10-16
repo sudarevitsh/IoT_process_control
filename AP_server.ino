@@ -1,31 +1,31 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-  #define AP_SSID "Zavrsni_Rad"                                
-  #define AP_PASS "12345678"                                  
+#define AP_SSID "Zavrsni_Rad"                                
+#define AP_PASS "12345678"                                  
 
-  const char* ssid = AP_SSID;                                
-  const char* password = AP_PASS;                             
+const char* ssid = AP_SSID;                                
+const char* password = AP_PASS;                             
 
-  IPAddress ap_ip (8, 8, 8, 8);                              
-  IPAddress subnet_mask (255, 255, 255, 0);                 
+IPAddress ap_ip (8, 8, 8, 8);                              
+IPAddress subnet_mask (255, 255, 255, 0);                 
 
-  ESP8266WebServer server(80);
+ESP8266WebServer server(80);
 
-  float temperature = 0;                                      
-  float humidity = 0;                                      
-  float soil_moist = 0;                                     
+float temperature = 0;                                      
+float humidity = 0;                                      
+float soil_moist = 0;                                     
   
-  float reg_temp = 0;
-  float reg_humi = 0;
-  float reg_moist = 0;
+float reg_temp = 0;
+float reg_humi = 0;
+float reg_moist = 0;
 
-  String process = "";
-  String x = "";
+String process = "";
+String x = "";
   
 //-----------------------------------------------------------------------------------------------------------------------
 
-  String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
+String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
   String html = R"=====(
   <!DOCTYPE html><html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -92,42 +92,43 @@
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-  void handleClient1(){
-    if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-      server.send(200, "text/plain", "new_job");                
-    }
-  }  
-
-  void handleClient2(){
-    if (server.arg("client_id") == "2"){                      
-      temperature = server.arg("temperature").toFloat();     
-      humidity = server.arg("humidity").toFloat();           
-      soil_moist = server.arg("soil_moist").toFloat();        
-      server.send(200, "text/plain", " :) ");     
-    }
+void handleClient1(){
+  if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
+    server.send(200, "text/plain", "new_job");                
   }
+}  
 
-
-  void handleRoot(){
-    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); 
+void handleClient2(){
+  if (server.arg("client_id") == "2"){                      
+    temperature = server.arg("temperature").toFloat();     
+    humidity = server.arg("humidity").toFloat();           
+    soil_moist = server.arg("soil_moist").toFloat();        
+    server.send(200, "text/plain", " :) ");     
   }
+}
 
-  void handleNotFound(){
-    server.send(404, "text/plain", "Nije pronadjeno");
-  }
+
+void handleRoot(){
+  server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); 
+}
+
+void handleNotFound(){
+  server.send(404, "text/plain", "Nije pronadjeno");
+}
  
-  void handleInput(){
-    process = server.arg("process");
-    x = server.arg("x");
-    server.send(200, "text/plain", "Proces je poslan na server");
-  }
+void handleInput(){
+  process = server.arg("process");
+  x = server.arg("x");
+  server.send(200, "text/plain", "Proces je poslan na server");
+}
 
-  void handleRegulation(){
-    reg_temp = server.arg("reg_temp").toFloat();
-    reg_humi = server.arg("reg_humi").toFloat();
-    reg_moist = server.arg("reg_moist").toFloat();
-    server.send(200, "text/plain", "Vrijednosti promjenjene!");
-  }
+void handleRegulation(){
+  reg_temp = server.arg("reg_temp").toFloat();
+  reg_humi = server.arg("reg_humi").toFloat();
+  reg_moist = server.arg("reg_moist").toFloat();
+  server.send(200, "text/plain", "Vrijednosti promjenjene!");
+}
+
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
