@@ -1,68 +1,67 @@
 #include <ESP8266WiFi.h>
 
-  const char* ssid = "Zavrsni_Rad";       
-  const char* password = "12345678";      
+const char* ssid = "Zavrsni_Rad";       
+const char* password = "12345678";      
 
-  const byte port = 80;                 
-  String host_str = "8.8.8.8";            
-  String route = "/client1/";             
+const byte port = 80;                 
+String host_str = "8.8.8.8";            
+String route = "/client1/";             
  
-  WiFiClient client;                     
-  byte id = 1;                      
-  String new_job;
+WiFiClient client;                     
+byte id = 1;                      
+String new_job;
 
-  boolean client_free = true;
+boolean client_free = true;
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
 Serial.begin(115200);
-//definisanje izlaza
-    pinMode(LED_BUILTIN, OUTPUT);
+
+  pinMode(LED_BUILTIN, OUTPUT);
   
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
    
-    while(WiFi.status() != WL_CONNECTED){
-      digitalWrite(LED_BUILTIN, LOW);
-      delay(200);
-      digitalWrite(LED_BUILTIN, HIGH);
-      delay(200);
-    }
+  while(WiFi.status() != WL_CONNECTED){
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(200);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(200);
+  }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
      
-    if(client_free){
-      client.connect(host_str, port);
+  if(client_free){
+    client.connect(host_str, port);
       
-      String request = String(route + "?client_id=" + String(id) + "&client_free=" + String(client_free));
-      client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));
-      delay(5); 
+    String request = String(route + "?client_id=" + String(id) + "&client_free=" + String(client_free));
+    client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));
+    delay(5); 
       
-      unsigned long timeout = millis();
-      while (client.available() == 0) {
-        if (millis() - timeout > 5000) {
-          client.stop();
-          return;
-        }
+    unsigned long timeout = millis();
+    while (client.available() == 0) {
+      if (millis() - timeout > 5000) {
+        client.stop();
+        return;
       }
+    }
 
       /*while (client.available()) {
         new_job = client.readStringUntil('\r'); 
         Serial.print(new_job);
       }*/
       
-      while (client.connected()) {
+    while (client.connected()) {
       String line = client.readStringUntil('\n');
       if (line == "\r") {
-      Serial.println("headers received");
-      break;
+        Serial.println("headers received");
+        break;
       }
-      }
-    
+    }
       client_free = false;                  
   }
 }
