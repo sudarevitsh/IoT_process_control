@@ -1,25 +1,20 @@
 #include <ESP8266WiFi.h>
 #include <ESP8266WebServer.h>
 
-//definisanje parametara pristupne tačke (AP)
-  #define AP_SSID "Zavrsni_Rad"                               //naziv mreže 
-  #define AP_PASS "12345678"                                  //lozinka mreže
+  #define AP_SSID "Zavrsni_Rad"                                
+  #define AP_PASS "12345678"                                  
 
-//dodjeljivanje vrijednosti parametara promjenljivima
-  const char* ssid = AP_SSID;                                 //ukazivanje na naziv mreže
-  const char* password = AP_PASS;                             //ukazivanje na lozinku
+  const char* ssid = AP_SSID;                                
+  const char* password = AP_PASS;                             
 
-//definisanje IP adrese (koja je i gateway) i maske pristupne tačke
-  IPAddress ap_ip (8, 8, 8, 8);                               //IP adresa pristupne tačke
-  IPAddress subnet_mask (255, 255, 255, 0);                   //podmrežna maska 
+  IPAddress ap_ip (8, 8, 8, 8);                              
+  IPAddress subnet_mask (255, 255, 255, 0);                 
 
-//inicijalizacija webservera i porta za komunikaciju
   ESP8266WebServer server(80);
 
-//vrijednosti veličina koje mjeri i šalje klijent#2
-  float temperature = 0;                                      //promjenljiva temperature koju pošalje klijent
-  float humidity = 0;                                         //promjenljiva vlažnosti vazduha koju pošalje klijent
-  float soil_moist = 0;                                       //promjenljiva vlažnosti zemljišta koju pošalje klijent  
+  float temperature = 0;                                      
+  float humidity = 0;                                      
+  float soil_moist = 0;                                     
   
   float reg_temp = 0;
   float reg_humi = 0;
@@ -27,12 +22,8 @@
 
   String process = "";
   String x = "";
-
   
 //-----------------------------------------------------------------------------------------------------------------------
-
-//funkcija u kojoj je definisan izgled web stranice koja se prikazuje prilikom pristupa serveru
-//funkcija za parametre uzima vrijednosti primljene sa klijenta#2
 
   String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
   String html = R"=====(
@@ -101,31 +92,26 @@
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-//obrada i odgovor na zahtjev klijenta#1
-  String new_job;
-//provjera ID-a i zauzetosti klijenta, ako je slobodan dobiće novi posao
   void handleClient1(){
     if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-      server.send(200, "text/plain", "new_job");                //odgovor servera na zahtjev klijenta sa novim poslom
+      server.send(200, "text/plain", "new_job");                
     }
   }  
 
-//obrada i odgovor na zahtjev klijenta#2
   void handleClient2(){
-    if (server.arg("client_id") == "2"){                      //provjera ID-a klijenta
-      temperature = server.arg("temperature").toFloat();      //očitavanje vrijednosti temperature iz zahtjeva
-      humidity = server.arg("humidity").toFloat();            //očitavanje vrijednosti vlažnosti vazduha iz zahtjeva
-      soil_moist = server.arg("soil_moist").toFloat();        //očitavanje vrijednosti vlažnosti zemljišta iz zahtjeva
-      server.send(200, "text/plain", " :) ");                 //odgovor servera na zahtjev klijenta (200 = OK)
+    if (server.arg("client_id") == "2"){                      
+      temperature = server.arg("temperature").toFloat();     
+      humidity = server.arg("humidity").toFloat();           
+      soil_moist = server.arg("soil_moist").toFloat();        
+      server.send(200, "text/plain", " :) ");     
     }
   }
 
-//odgovor kada se zatraži samo IP adresa servera (web stranica)
+
   void handleRoot(){
-    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); //odgovor servera web stranicom
+    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); 
   }
 
-//kada se zatraži neka nepoznara ruta na serveru
   void handleNotFound(){
     server.send(404, "text/plain", "Nije pronadjeno");
   }
@@ -133,7 +119,7 @@
   void handleInput(){
     process = server.arg("process");
     x = server.arg("x");
-    server.send(200, "text/plain", "Unešeni proces je dodan u listu poslova");
+    server.send(200, "text/plain", "Proces je poslan na server");
   }
 
   void handleRegulation(){
@@ -145,22 +131,21 @@
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
-//pkretanje i podešavanje pristupne tačke  
-  WiFi.softAP(ssid, password);                                //ime i lozinka pristupne tačke
-  WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);               //IP, gateway, subnet maks
-  
-//definisanje ruta koje server prepoznaje i vrsta zahtjeva koje obrađuje  
-  server.on("/client1/", HTTP_GET, handleClient1);          //klijent#1
-  server.on("/client2/", HTTP_GET, handleClient2);          //klijent#2
+
+  WiFi.softAP(ssid, password);                                
+  WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);       
+   
+  server.on("/client1/", HTTP_GET, handleClient1);          
+  server.on("/client2/", HTTP_GET, handleClient2);          
   server.on("/input", HTTP_GET, handleInput);
   server.on("/regulation", HTTP_GET, handleRegulation);
-  server.on("/", handleRoot);                                 //bilo koji klijent koji otvori IP adresu
+  server.on("/", handleRoot);                                 
   
-  server.begin();                                             //pokretanje servera
+  server.begin();                                            
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-  server.handleClient();                                      //održavanje servera
+  server.handleClient();                                    
 }
