@@ -5,6 +5,7 @@ AccessPoint&WebServer:
   - WebServer set up;
   - WebPage set up;
   - Client1&2 requests set up;
+  - phone request set up for both clients;
   -------------------------------------------------
   + store form data in variables
   + need to handle processes (first in-first out);???
@@ -24,6 +25,6 @@ Client2:
   - Variables initialized;
   - HTML method is done;
   - Regulators set up; 
+  - needs sensor code;
   -------------------------------------------------
-  + need sensor code;
   + needs some final touch and testing;
