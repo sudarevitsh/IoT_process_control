@@ -3,7 +3,7 @@
 
 #define DHT_PIN 13
 #define DHTTYPE DHT21
-
+  
 DHT dht(DHT_PIN, DHTTYPE);
 
 //parametri pristupne tačke
@@ -20,18 +20,20 @@ DHT dht(DHT_PIN, DHTTYPE);
   byte id = 2;                               //identifikacioni broj koji server zahtjva od klijenta za komunikaciju
   
 //promjenljive u koje se unose rezultati senzorskih mjerenja
-  float dht_temp;                                    //temperatura
-  float dht_humi;                                    //vlažnost vazduha
-  float soil_moist;                                   //vlažnost zemljišta
+  float dht_temp = 0;                                    //temperatura
+  float dht_humi = 0;                                    //vlažnost vazduha
+  int soil_moist = 0;                                  //vlažnost zemljišta
+  int moist_value = 0;
 
 //promjenljive kojima se reguliše vremenski interval slanja zahtjeva na server
-  unsigned long req_timer = (10*1000);           //koliko često će se slati zahtjev i podaci.
+unsigned long req_timer = (1000);           //koliko često će se slati zahtjev i podaci.
   int interval_counter = 1;                      //brojač proteklih intervala, odgovara i broju poslanih zahtjeva plus 1
-  unsigned long time_counter;                    //brojač vremena, ispisuje rezultat funkcije millis()
+  unsigned long time_counter;                   //brojač vremena, ispisuje rezultat funkcije millis()
 
   const int REG_TEMP = 14;                //GPIO14 = D5, pin regulatora temperature
   const int REG_HUMI = 12;                   //GPIO12 = D6, pin regulatora vlažnosti vazduha
-  const int REG_MOIST = 15;                   //GPIO13 = D7, pin regulatora vlažnosti zemljišta
+  const int REG_MOIST = 15;                  //GPIO13 = D7, pin regulatora vlažnosti zemljišta
+  
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -41,10 +43,12 @@ void setup(){
     pinMode(REG_TEMP, OUTPUT);
     pinMode(REG_HUMI, OUTPUT);
     pinMode(REG_MOIST, OUTPUT);
-  
+    
+
+    Serial.begin(115200);
     dht.begin();
     delay(500);
- 
+    Serial.println("DHTPOCO");
 //podešavanje klijenta (stanice) i povezivanje na pristupnu tačku
     WiFi.mode(WIFI_STA);
     WiFi.begin(ssid, password);
@@ -56,6 +60,7 @@ void setup(){
       digitalWrite(LED_BUILTIN, HIGH);
       delay(200);
     }  
+    Serial.println("POVEZO");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -63,17 +68,23 @@ void setup(){
 void loop(){
 
 //praćenje vremena rada klijenta, na osnovu njega se određuje vremenski interval slanja zahtjeva na server
-    time_counter = millis();
+    
 
 //dodjela vrijednosti mjerenim veličinama
     dht_humi = dht.readHumidity();
     dht_temp = dht.readTemperature();
-    soil_moist = (float)random(1,99);
-
+    moist_value = analogRead(0);
+    Serial.println(moist_value);
+    soil_moist = constrain(map (moist_value, 1023, 700, 0, 100), 0, 100);
+    
+    Serial.println(soil_moist);
+    Serial.println("OCITAO");
+    delay(500);
+    time_counter = millis();
 //regulisanje vremenskog intervala zahtjeva, objasniti dodatno...
     if(time_counter > (req_timer * interval_counter)){
-      interval_counter += 1;  
-    
+      interval_counter += 1; 
+          
   //povezivanje klijenta sa serverom, a zatim ormiranje i slanje zahtjeva u kom se nalaze podaci očitavanja senzora 
       client.connect(host_str, port); 
     
@@ -82,7 +93,11 @@ void loop(){
  
   //standardni način slanja HTTP zahtjeva na server  
       client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
-      client.stop();                             //prekid veze
+          
+      Serial.println(request);       
+      Serial.println("POSLO");
+      delay(500);
+      client.stop(); 
    }
   
 //pokretanje regulatora temperature na osnovu neke željene vrijednosti temperature  
