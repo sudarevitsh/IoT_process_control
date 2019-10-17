@@ -94,7 +94,9 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 
 void handleClient1(){
   if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-    server.send(200, "text/plain", "new_job");                
+    String response_1 = ("process=" + String(process) + "&repeat=" + String(x));
+    
+    server.send(200, "text/plain", response_1);                
   }
 }  
 
@@ -102,8 +104,9 @@ void handleClient2(){
   if (server.arg("client_id") == "2"){                      
     temperature = server.arg("temperature").toFloat();     
     humidity = server.arg("humidity").toFloat();           
-    soil_moist = server.arg("soil_moist").toFloat();        
-    server.send(200, "text/plain", " :) ");     
+    soil_moist = server.arg("soil_moist").toFloat();  
+    String response_2 = ("reg_temp=" + String(reg_temp) + "&reg_humi=" + String(reg_humi) + "&reg_moist=" + String(reg_moist));
+    server.send(200, "text/plain", response_2);     
   }
 }
 
@@ -150,7 +153,7 @@ void setup(){
 void loop(){
   server.handleClient();  
   Serial.println(x);
-  Serail.println(process);
+  Serial.println(process);
   Serial.println(reg_temp);
   Serial.println(reg_humi);
   Serial.println(reg_moist);
