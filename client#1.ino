@@ -49,19 +49,15 @@ void loop(){
         return;
       }
     }
-
-      /*while (client.available()) {
-        new_job = client.readStringUntil('\r'); 
-        Serial.print(new_job);
-      }*/
-      
-    while (client.connected()) {
-      String line = client.readStringUntil('\n');
-      if (line == "\r") {
-        Serial.println("headers received");
-        break;
+    
+    while (client.connected() || client.available()){
+      if (client.available()){
+       
+       String line = client.readStringUntil('\n');
+       Serial.println(line);
       }
     }
-      client_free = false;                  
+      client_free = false; 
+      client_free = true;                 
   }
 }
