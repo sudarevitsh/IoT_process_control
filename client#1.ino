@@ -17,7 +17,7 @@ boolean client_free = true;
 void setup(){
 Serial.begin(115200);
 
-  pinMode(LED_BUILTIN, OUTPUT); 
+  pinMode(LED_BUILTIN, OUTPUT);
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -39,23 +39,23 @@ void loop(){
       
     String request = String(route + "?client_id=" + String(id) + "&client_free=" + String(client_free));
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));
-    delay(5); 
+     
       
     unsigned long timeout = millis();
     while (client.available() == 0) {
-      if (millis() - timeout > 5000) {
+      if (millis() - timeout > 6000) {
         client.stop();
         return;
       }
     }
     
-    while (client.connected()){
+    while (client.connected() || client.available()){
       if (client.available()){
-        String line = client.readStringUntil('\n');
-        Serial.println(line);
+       
+       String line = client.readStringUntil('\n');
+       Serial.println(line);
       }
     }
-      client_free = false; 
-      client_free = true;                 
+                   
   }
 }
