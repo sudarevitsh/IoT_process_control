@@ -49,11 +49,10 @@ void loop(){
       }
     }
     
-    while (client.connected() || client.available()){
+    while (client.connected()){
       if (client.available()){
-       
-       String line = client.readStringUntil('\n');
-       Serial.println(line);
+        String line = client.readStringUntil('\n');
+        Serial.println(line);
       }
     }
       client_free = false; 
