@@ -132,7 +132,7 @@ void handleRegulation(){
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
-
+  Serial.begin(115200);
   WiFi.softAP(ssid, password);                                
   WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);       
    
@@ -148,5 +148,11 @@ void setup(){
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-  server.handleClient();                                    
+  server.handleClient();  
+  Serial.println(x);
+  Serail.println(process);
+  Serial.println(reg_temp);
+  Serial.println(reg_humi);
+  Serial.println(reg_moist);
+  delay(1000);
 }
