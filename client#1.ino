@@ -9,7 +9,6 @@ String route = "/client1/";
  
 WiFiClient client;                     
 byte id = 1;                      
-String new_job;
 
 boolean client_free = true;
 
@@ -18,7 +17,7 @@ boolean client_free = true;
 void setup(){
 Serial.begin(115200);
 
-  pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT); 
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
