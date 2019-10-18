@@ -57,7 +57,7 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
   <form action="/input" method="GET">
       <p>Proces:<input class="input_class" name="process"></input></p>
       
-      <p>Broj ponavljanja:<input class="input_class" name="x" style=width:15%;></input></p>
+      <p>Broj ponavljanja:<input class="input_class" name="x" style=width:15%; type="number" min="1" max=9></input></p>
       <p><button class="button_class" value="Submit">Posalji proces na server</button></p>
   </form>
   </fieldset>
@@ -95,7 +95,7 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 
 void handleClient1(){
   if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-    String response_1 = ("process=" + String(process) + "&repeat=" + String(x));
+    String response_1 = "repeat=" + String(x) + "&process=" + String(process) + "##";
     server.send(200, "text/plain", response_1);                
   }
 }  
