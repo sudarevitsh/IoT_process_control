@@ -20,8 +20,9 @@ float reg_temp = 0;
 float reg_humi = 0;
 float reg_moist = 0;
 
-String process = "";
-String x = "";
+String process[] = "";
+String x[] = "";
+int process_index = 0;
   
 //-----------------------------------------------------------------------------------------------------------------------
 
