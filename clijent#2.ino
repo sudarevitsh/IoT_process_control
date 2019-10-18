@@ -29,7 +29,8 @@ unsigned long time_counter;
 const int REG_TEMP = 14;                
 const int REG_HUMI = 12;                   
 const int REG_MOIST = 15;    
-  
+
+String server_line = "";
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -84,8 +85,8 @@ void loop(){
     while (client.connected()){
       if (client.available()){
        
-       String line = client.readStringUntil('\n');
-       Serial.println(line);
+       server_line = client.readStringUntil('\n');
+       Serial.println(server_line);
       }
     }
     client.stop(); 
