@@ -68,20 +68,20 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
     
       html +="<fieldset class=\"field_class\"><legend>Izmjerene vrijednosti</legend><form action=\"/regulation\" method=\"GET\">\n";
       html += "<h4>Temperatura:";
-      html += (float)TEMPERATURE;
+      html += TEMPERATURE;
       html += "C</h4><h5>Podesavanje regulatora temperature:";
-      html += (float)REG_TEMP;
-      html += "C /<input class=\"input_class\" style=width:10%; name=\"reg_temp\"></h5>\n";
+      html += REG_TEMP;
+      html += "C /<input class=\"input_class\" style=width:10%; name=\"reg_temp\" type=\"number\" min=\"0\" max=\"50\"></h5>\n";
       html += "<h4>Vlaznost vazduha:";
-      html += (float)HUMIDITY;
+      html += HUMIDITY;
       html += "%</h4><h5>Podesavanje regulatora vlaznosti vazduha:";
-      html += (float)REG_HUMI;
-      html += "% /<input class=\"input_class\" style=width:10%; name= \"reg_humi\"></h5>\n";
+      html += REG_HUMI;
+      html += "% /<input class=\"input_class\" style=width:10%; name= \"reg_humi\" type=\"number\" min=\"0\" max=\"100\"></h5>\n";
       html += "<h4>Vlaznost zemljista:";
-      html += (float)SOIL_MOIST;
+      html += SOIL_MOIST;
       html += "%</h4><h5>Podesavanje regulatora vlaznosti zemljista:";
-      html += (float)REG_MOIST;
-      html += "% /<input class=\"input_class\" style=width:10%; name=\"reg_moist\"></h5>\n";
+      html += REG_MOIST;
+      html += "% /<input class=\"input_class\" style=width:10%; name=\"reg_moist\" type=\"number\" min=\"0\" max=\"100\"></h5>\n";
       html += "<p><button class=\"button_class\" value=\"Submit\">Izmjeni vrijednosti</button></p>";
   
       html += "</form></fieldset></body>\n";
@@ -95,7 +95,6 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 void handleClient1(){
   if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
     String response_1 = ("process=" + String(process) + "&repeat=" + String(x));
-    
     server.send(200, "text/plain", response_1);                
   }
 }  
@@ -126,10 +125,16 @@ void handleInput(){
 }
 
 void handleRegulation(){
-  reg_temp = server.arg("reg_temp").toFloat();
-  reg_humi = server.arg("reg_humi").toFloat();
-  reg_moist = server.arg("reg_moist").toFloat();
-  server.send(200, "text/plain", "Vrijednosti promjenjene!");
+  if (server.arg("reg_temp") != ""){
+    reg_temp = server.arg("reg_temp").toFloat();
+  }
+  if (server.arg("reg_humi") != ""){
+    reg_humi = server.arg("reg_humi").toFloat();
+  }
+  if (server.arg("reg_moist") != ""){
+    reg_moist = server.arg("reg_moist").toFloat();
+  }
+  server.send(200, "text/plain", "Vrijednosti su promjenjene!");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
