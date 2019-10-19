@@ -16,9 +16,9 @@ float temperature = 0;
 float humidity = 0;                                      
 float soil_moist = 0;                                     
   
-float reg_temp = 0;
-float reg_humi = 0;
-float reg_moist = 0;
+float reg_temp = 20;
+float reg_humi = 60;
+float reg_moist = 30;
 
 String process = "";
 String x = "";
@@ -141,7 +141,6 @@ void handleRegulation(){
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
-  Serial.begin(115200);
   WiFi.softAP(ssid, password);                                
   WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);       
    
@@ -158,10 +157,4 @@ void setup(){
 
 void loop(){
   server.handleClient();  
-  Serial.println(x);
-  Serial.println(process);
-  Serial.println(reg_temp);
-  Serial.println(reg_humi);
-  Serial.println(reg_moist);
-  delay(1000);
 }
