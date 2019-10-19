@@ -20,8 +20,8 @@ float reg_temp = 0;
 float reg_humi = 0;
 float reg_moist = 0;
 
-String process[] = "";
-String x[] = "";
+String process = "";
+String x = "";
 int process_index = 0;
   
 //-----------------------------------------------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
   <form action="/input" method="GET">
       <p>Proces:<input class="input_class" name="process"></input></p>
       
-      <p>Broj ponavljanja:<input class="input_class" name="x" style=width:15%; type="number" min="1" max=9></input></p>
+      <p>Broj ponavljanja:<input class="input_class" name="x" style=width:15%; type="number" min="1" max="9"></input></p>
       <p><button class="button_class" value="Submit">Posalji proces na server</button></p>
   </form>
   </fieldset>
@@ -72,17 +72,17 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
       html += TEMPERATURE;
       html += "C</h4><h5>Podesavanje regulatora temperature:";
       html += REG_TEMP;
-      html += "C /<input class=\"input_class\" style=width:10%; name=\"reg_temp\" type=\"number\" min=\"0\" max=\"50\"></h5>\n";
+      html += "C /<input class=\"input_class\" style=width:10%; name=\"reg_temp\" type=\"number\" min=\"0\" max=\"50\" step=\".01\"></h5>\n";
       html += "<h4>Vlaznost vazduha:";
       html += HUMIDITY;
       html += "%</h4><h5>Podesavanje regulatora vlaznosti vazduha:";
       html += REG_HUMI;
-      html += "% /<input class=\"input_class\" style=width:10%; name= \"reg_humi\" type=\"number\" min=\"0\" max=\"100\"></h5>\n";
+      html += "% /<input class=\"input_class\" style=width:10%; name= \"reg_humi\" type=\"number\" min=\"0\" max=\"100\" step=\".01\"></h5>\n";
       html += "<h4>Vlaznost zemljista:";
       html += SOIL_MOIST;
       html += "%</h4><h5>Podesavanje regulatora vlaznosti zemljista:";
       html += REG_MOIST;
-      html += "% /<input class=\"input_class\" style=width:10%; name=\"reg_moist\" type=\"number\" min=\"0\" max=\"100\"></h5>\n";
+      html += "% /<input class=\"input_class\" style=width:10%; name=\"reg_moist\" type=\"number\" min=\"0\" max=\"100\" step=\".01\"></h5>\n";
       html += "<p><button class=\"button_class\" value=\"Submit\">Izmjeni vrijednosti</button></p>";
   
       html += "</form></fieldset></body>\n";
@@ -95,8 +95,8 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 
 void handleClient1(){
   if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-    String response_1 = "repeat=" + String(x) + "&process=" + String(process) + "##";
-    server.send(200, "text/plain", response_1);                
+//    String response_1 = ("repeat=" + String(x) + "&process=" + String(process) + "##");
+  //  server.send(200, "text/plain", response_1);                
   }
 }  
 
@@ -105,7 +105,7 @@ void handleClient2(){
     temperature = server.arg("temperature").toFloat();     
     humidity = server.arg("humidity").toFloat();           
     soil_moist = server.arg("soil_moist").toFloat();  
-    String response_2 = ("reg_temp=" + String(reg_temp) + "&reg_humi=" + String(reg_humi) + "&reg_moist=" + String(reg_moist));
+    String response_2 = (String(reg_temp) + "," + String(reg_humi) + "," + String(reg_moist) + "#");
     server.send(200, "text/plain", response_2);     
   }
 }
