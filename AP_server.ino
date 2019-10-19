@@ -20,9 +20,10 @@ float reg_temp = 20;
 float reg_humi = 60;
 float reg_moist = 30;
 
-String process = "";
-String x = "";
-int process_index = 0;
+String process[5] = {};
+String x[5] = {};
+int process_number_in = 1;
+int process_number_out = 1;
   
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -120,9 +121,19 @@ void handleNotFound(){
 }
  
 void handleInput(){
-  process = server.arg("process");
-  x = server.arg("x");
-  server.send(200, "text/plain", "Proces je poslan na server");
+  if (process_number_in > 5){
+    process_number_in = 1;
+    process[process_number_in] = server.arg("process");
+    x[process_number_in] = server.arg("x");
+    process_number_in += 1;
+    server.send(200, "text/plain", "Proces je poslan na server");
+  }
+  else{
+    process[process_number_in] = server.arg("process");
+    x[process_number_in] = server.arg("x");
+    process_number_in += 1;
+    server.send(200, "text/plain", "Proces je poslan na server");
+  }
 }
 
 void handleRegulation(){
