@@ -19,8 +19,8 @@ byte id = 2;
 
 float dht_temp = 0;                                   
 float dht_humi = 0;                                  
-int soil_moist = 0;                                 
-float moist_value = 0;
+float soil_moist = 0;                                 
+int moist_value = 0;
 
 unsigned long req_timer = (1000);          
 int interval_counter = 1;                   
@@ -39,12 +39,11 @@ float reg_moist_val;
 
 void setup(){
   
-  Serial.begin(115200);
   pinMode(LED_BUILTIN, OUTPUT);         
   pinMode(REG_TEMP, OUTPUT);
   pinMode(REG_HUMI, OUTPUT);
   pinMode(REG_MOIST, OUTPUT);
-  Serial.println("dobar");
+  
   dht.begin();
   delay(500);
   
@@ -62,28 +61,26 @@ void setup(){
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-  //dht_humi = dht.readHumidity();
-  //dht_temp = dht.readTemperature();
-  //moist_value = analogRead(0);
+  Serial.begin(115200);
+  dht_humi = dht.readHumidity();
+  dht_temp = dht.readTemperature();
+  moist_value = analogRead(0);
+  Serial.println(moist_value);
 
-  dht_humi = random(4,99);
-  dht_temp = random(2,44);
-  soil_moist = random(22,55);
-  
-  //soil_moist = constrain(map (moist_value, 1023, 700, 0, 100), 0, 100);
-    
+  soil_moist = constrain(map (moist_value, 1024, 880, 0, 100), 0, 100);
+  Serial.println(soil_moist);
   time_counter = millis();
   if(time_counter > (req_timer * interval_counter)){
     interval_counter += 1; 
           
     client.connect(host_str, port); 
       
-    String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temp) + "&humidity=" + String(dht_humi) + "&moist=" + String(soil_moist));
+    String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temp) + "&humidity=" + String(dht_humi) + "&soil_moist=" + String(soil_moist));
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
 
     unsigned long timeout = millis();
     while (client.available() == 0) {
-      if (millis() - timeout > 6000) {
+      if (millis() - timeout > 3000) {
         client.stop();
         return;
       }
@@ -103,39 +100,29 @@ void loop(){
         
        int ending = server_line.indexOf('#');
        reg_moist_val = server_line.substring(com2 + 1, ending).toFloat();
-        
-       Serial.println(reg_temp_val);
-       Serial.println(reg_humi_val);
-       Serial.println(reg_moist_val);
+
       }
     }
     client.stop(); 
   }
   
-  if (dht_temp < reg_temp_val){
-    digitalWrite(REG_TEMP, HIGH); 
-    Serial.println("TEMP");      
+  if (dht_temp > reg_temp_val){
+    digitalWrite(REG_TEMP, HIGH);         
   }
-  else if (dht_temp >= reg_temp_val){
-    digitalWrite(REG_TEMP, LOW);
-    Serial.println("temp");
+  else if (dht_temp <= reg_temp_val){
+    digitalWrite(REG_TEMP, LOW);    
   }
 
-  if (dht_humi < reg_humi_val){
-    digitalWrite(REG_HUMI, HIGH); 
-    Serial.println("HUMI");     
+  if (dht_humi > reg_humi_val){
+    digitalWrite(REG_HUMI, HIGH);       
   }
-  else if (dht_humi >= reg_humi_val){
+  else if (dht_humi <= reg_humi_val){
     digitalWrite(REG_HUMI, LOW);
-    Serial.println("humi");
   }
-  
-  if (soil_moist < reg_moist_val){
+  if (soil_moist > reg_moist_val){
     digitalWrite(REG_MOIST, HIGH);  
-    Serial.println("MOIST");
   }
-  else if (soil_moist >= reg_moist_val){
+  else if (soil_moist <= reg_moist_val){
     digitalWrite(REG_MOIST, LOW);
-    Serial.println("moist");
   }
 }
