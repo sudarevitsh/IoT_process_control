@@ -105,7 +105,7 @@ void handleClient2(){
     temperature = server.arg("temperature").toFloat();     
     humidity = server.arg("humidity").toFloat();           
     soil_moist = server.arg("soil_moist").toFloat();  
-    String response_2 = (String(reg_temp) + "," + String(reg_humi) + "," + String(reg_moist) + "#");
+    String response_2 = "?" + String(reg_temp) + "," + String(reg_humi) + "," + String(reg_moist) + "#";
     server.send(200, "text/plain", response_2);     
   }
 }
