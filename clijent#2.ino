@@ -20,7 +20,7 @@ byte id = 2;
 float dht_temp = 0;                                   
 float dht_humi = 0;                                  
 int soil_moist = 0;                                 
-int moist_value = 0;
+float moist_value = 0;
 
 unsigned long req_timer = (1000);          
 int interval_counter = 1;                   
@@ -31,6 +31,9 @@ const int REG_HUMI = 12;
 const int REG_MOIST = 15;    
 
 String server_line = "";
+float reg_temp_val;
+float reg_humi_val;
+float reg_moist_val;
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -86,7 +89,18 @@ void loop(){
       if (client.available()){
        
        server_line = client.readStringUntil('\n');
-       Serial.println(server_line);
+       int com1 = server_line.indexOf(',');
+       reg_temp_val = server_line.substring(0, com1).toFloat();
+        
+       int com2 = server_line.indexOf(',', com1 + 1);
+       reg_humi_val = server_line.substring(com1 + 1, com2).toFloat();
+        
+       int ending = server_line.indexOf('#');
+       reg_moist_val = server_line.substring(com2 + 1, ending).toFloat();
+        
+       Serial.println(reg_temp_val);
+       Serial.println(reg_humi_val);
+       Serial.println(reg_moist_val);
       }
     }
     client.stop(); 
