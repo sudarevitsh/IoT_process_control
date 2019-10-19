@@ -62,11 +62,15 @@ void setup(){
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-  dht_humi = dht.readHumidity();
-  dht_temp = dht.readTemperature();
-  moist_value = analogRead(0);
-  Serial.println(moist_value);
-  soil_moist = constrain(map (moist_value, 1023, 700, 0, 100), 0, 100);
+  //dht_humi = dht.readHumidity();
+  //dht_temp = dht.readTemperature();
+  //moist_value = analogRead(0);
+
+  dht_humi = random(4,99);
+  dht_temp = random(2,44);
+  soil_moist = random(22,55);
+  
+  //soil_moist = constrain(map (moist_value, 1023, 700, 0, 100), 0, 100);
     
   time_counter = millis();
   if(time_counter > (req_timer * interval_counter)){
@@ -108,24 +112,30 @@ void loop(){
     client.stop(); 
   }
   
-  if (dht_temp < 5){
-    digitalWrite(REG_TEMP, HIGH);       
+  if (dht_temp < reg_temp_val){
+    digitalWrite(REG_TEMP, HIGH); 
+    Serial.println("TEMP");      
   }
-  else if (dht_temp >= 5){
+  else if (dht_temp >= reg_temp_val){
     digitalWrite(REG_TEMP, LOW);
+    Serial.println("temp");
   }
 
-  if (dht_humi < 50){
-    digitalWrite(REG_HUMI, HIGH);      
+  if (dht_humi < reg_humi_val){
+    digitalWrite(REG_HUMI, HIGH); 
+    Serial.println("HUMI");     
   }
-  else if (dht_humi >= 50){
+  else if (dht_humi >= reg_humi_val){
     digitalWrite(REG_HUMI, LOW);
+    Serial.println("humi");
   }
   
-  if (soil_moist < 40){
-    digitalWrite(REG_MOIST, HIGH);      
+  if (soil_moist < reg_moist_val){
+    digitalWrite(REG_MOIST, HIGH);  
+    Serial.println("MOIST");
   }
-  else if (soil_moist >= 40){
+  else if (soil_moist >= reg_moist_val){
     digitalWrite(REG_MOIST, LOW);
+    Serial.println("moist");
   }
 }
