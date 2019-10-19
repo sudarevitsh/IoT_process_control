@@ -88,9 +88,11 @@ void loop(){
     while (client.connected()){
       if (client.available()){
        
-       server_line = client.readStringUntil('\n');
+       server_line = client.readStringUntil('#');
+       
+       int begining = server_line.indexOf('?');
        int com1 = server_line.indexOf(',');
-       reg_temp_val = server_line.substring(0, com1).toFloat();
+       reg_temp_val = server_line.substring(begining + 1, com1).toFloat();
         
        int com2 = server_line.indexOf(',', com1 + 1);
        reg_humi_val = server_line.substring(com1 + 1, com2).toFloat();
