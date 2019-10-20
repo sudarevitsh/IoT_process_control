@@ -117,7 +117,7 @@ void handleRoot(){
 }
 
 void handleNotFound(){
-  server.send(404, "text/plain", "Nije pronadjeno");
+  server.send(404, "text/plain", "Nije pronadjeno!");
 }
  
 void handleInput(){
@@ -126,13 +126,13 @@ void handleInput(){
     process[process_number_in] = server.arg("process");
     x[process_number_in] = server.arg("x");
     process_number_in += 1;
-    server.send(200, "text/plain", "Proces je poslan na server");
+    server.send(200, "text/plain", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist));
   }
   else{
     process[process_number_in] = server.arg("process");
     x[process_number_in] = server.arg("x");
     process_number_in += 1;
-    server.send(200, "text/plain", "Proces je poslan na server");
+    server.send(200, "text/plain", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist));
   }
 }
 
@@ -146,7 +146,7 @@ void handleRegulation(){
   if (server.arg("reg_moist") != ""){
     reg_moist = server.arg("reg_moist").toFloat();
   }
-  server.send(200, "text/plain", "Vrijednosti su promjenjene!");
+  server.send(200, "text/plain", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
