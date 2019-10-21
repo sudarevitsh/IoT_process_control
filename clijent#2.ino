@@ -91,7 +91,7 @@ void loop(){
        
        server_line = client.readStringUntil('#');
        
-       int begining = server_line.indexOf('?');
+       int beginning = server_line.indexOf('?');
        int com1 = server_line.indexOf(',');
        reg_temp_val = server_line.substring(begining + 1, com1).toFloat();
         
