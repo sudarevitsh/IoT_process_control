@@ -14,8 +14,46 @@ boolean client_free = true;
 String job = "";
 int parts;
 
+
+
+
 //-----------------------------------------------------------------------------------------------------------------------
 
+void algorithm(){
+  unsigned int ch_no;
+  int opps = 0; 
+  int spec_count = 0;
+  int counter = 0;
+  
+  for (ch_no = 0; ch_no < (job.length() - 1); ch_no ++){
+    if (job.charAt(ch_no) == '?' || ',' || '#'){
+      spec_count += 1;
+    }  
+  }
+  int char_place[spec_count];
+  for (ch_no = 0; ch_no < (job.length() - 1); ch_no ++){
+    if (job.charAt(ch_no) == '?' || ',' || '#'){
+      char_place[opps] = job.indexOf(ch_no); 
+      opps += 1;
+    }
+  } 
+  for(counter = 0; counter <= spec_count; counter ++){
+    for(ch_no = char_place[counter] + 1; ch_no < char_place[counter + 1]; ch_no ++){
+      String delay_timer = "";
+      if (job.charAt(ch_no) == 'A' || 'B' || 'C' || 'D' || 'E' || 'F'){
+        if(job.charAt(ch_no + 1) == '+'){
+          digitalWrite(job.charAt(ch_no), HIGH);}
+        else if(job.charAt(ch_no + 1) == '-'){
+          digitalWrite(job.charAt(ch_no), LOW);}
+      }
+      else if (isnan(String(job.charAt(ch_no)).toInt())){
+        delay_timer += String(job.charAt(ch_no));
+      }
+      delay(delay_timer.toInt());
+    }
+  }
+}
+ 
 void setup(){
 Serial.begin(115200);
 
@@ -45,7 +83,7 @@ void loop(){
       
     unsigned long timeout = millis();
     while (client.available() == 0) {
-      if (millis() - timeout > 6000) {
+      if (millis() - timeout > 4000) {
         client.stop();
         return;
       }
@@ -61,11 +99,14 @@ void loop(){
        
         parts = line.substring(beginning + 1, comma).toInt();
         job = line.substring(comma + 1 , ending);
+        client_free = false;
         Serial.println(line);
         Serial.println(job);
         Serial.println(parts);
       }
     }
-   
+  }
+  for(int i = 1; i <= parts; i++){
+    algorithm();
   }
 }
