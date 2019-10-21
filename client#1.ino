@@ -11,6 +11,8 @@ WiFiClient client;
 byte id = 1;                      
 
 boolean client_free = true;
+String job = "";
+int parts;
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -52,10 +54,18 @@ void loop(){
     while (client.connected() || client.available()){
       if (client.available()){
        
-       String line = client.readStringUntil('\n');
-       Serial.println(line);
+        String line = client.readStringUntil('#');
+        int beginning = line.indexOf('?');
+        int comma = line.indexOf(',');
+        int ending = line.indexOf('#');
+       
+        parts = line.substring(beginning + 1, comma).toInt();
+        job = line.substring(comma + 1 , ending);
+        Serial.println(line);
+        Serial.println(job);
+        Serial.println(parts);
       }
     }
-                   
+   
   }
 }
