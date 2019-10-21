@@ -20,10 +20,10 @@ float reg_temp = 20;
 float reg_humi = 60;
 float reg_moist = 30;
 
-String process[5] = {};
-String x[5] = {};
-int process_number_in = 1;
-int process_number_out = 1;
+String process[5] = {"","","","",""};
+String x[5] = {"","","","",""};
+int process_number_in = 0;
+int process_number_out = 0;
   
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -96,8 +96,17 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 
 void handleClient1(){
   if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-//    String response_1 = ("repeat=" + String(x) + "&process=" + String(process) + "##");
-  //  server.send(200, "text/plain", response_1);                
+    if (process_number_out > 4){
+      process_number_out = 0;
+      String response_1 = ("?" + x[process_number_out] + "," + process[process_number_out] + "#");
+      process_number_out += 1; 
+      server.send(200, "text/plain", response_1);
+    }
+    else{
+      String response_1 = ("?" + x[process_number_out] + "," + process[process_number_out] + "#");
+      process_number_out += 1; 
+      server.send(200, "text/plain", response_1);
+    }
   }
 }  
 
@@ -121,8 +130,8 @@ void handleNotFound(){
 }
  
 void handleInput(){
-  if (process_number_in > 5){
-    process_number_in = 1;
+  if (process_number_in > 4){
+    process_number_in = 0;
     process[process_number_in] = server.arg("process");
     x[process_number_in] = server.arg("x");
     process_number_in += 1;
