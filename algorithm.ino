@@ -14,10 +14,8 @@
   void loop(){
     
   while(!client_free){
-  
+  for(int part_count = 1; part_count <= parts; part_count++){ 
     job_len = job.length();
-    Serial.println(job_len);
-    delay(3000);
     for (ch_no = 0; ch_no < job_len ; ch_no ++){
       char com = job.charAt(ch_no);
       if ( com == '?' || com == ',' || com == '#'){
@@ -29,7 +27,7 @@
   memset(char_place, 0, sizeof(char_place));
   int opps = 0; 
   
-  for(int part_count = 1; part_count <= parts; part_count++){ 
+  
   for (int ch_no = 0; ch_no < job_len; ch_no ++){
     char com = job.charAt(ch_no);
     if (com == '?' || com == ',' || com == '#'){
@@ -60,12 +58,12 @@
       else if (com == '1' || com == '2' ||  com == '3' || com == '4' || com == '5' || com == '6' || com == '7' || com == '8' || com == '9' || com == '0'){
         delay_timer += String(com);
       }
-      else {}       
+           
     }
     Serial.print("Vremenski period je:");Serial.println(delay_timer.toInt());
     delay(delay_timer.toInt());
   }
-  //spec_count = 0;
+  spec_count = 0;
   client_free = true;
  }
  }
