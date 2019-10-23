@@ -77,8 +77,6 @@ void algorithm(){
   }
   spec_count = 0;
  }
- client_free = true;
- 
  Serial.print("Dijelova napravljeno");Serial.println(parts);
  Serial.println("Cekanje serveraaaaa");
  delay(3000);  
@@ -124,11 +122,11 @@ void loop(){
        
         String line = client.readStringUntil('#');
         int beginning = line.indexOf('?');
-        int comma = line.indexOf(',');
+        int mid = line.indexOf('x');
         int ending = line.indexOf('#');
        
-        parts = line.substring(beginning + 1, comma).toInt();
-        job = line.substring(comma + 1 , ending);
+        parts = line.substring(beginning + 1, mid).toInt();
+        job = line.substring(mid + 1 , ending);
         client_free = false;
         Serial.println(line);
         Serial.println(job);
@@ -139,5 +137,5 @@ void loop(){
   while (!client_free){
     algorithm();
   }
-  
+  client_free = true;  
 }
