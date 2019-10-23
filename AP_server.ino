@@ -109,6 +109,8 @@ void handleClient1(){
         server.send(200, "text/plain", response_1);
       }
     }
+    process[process_number_out] = "";
+    x[process_number_out] = "";
     process_number_out += 1;
   }
 }  
