@@ -20,6 +20,8 @@ int counter = 0;
 int job_len;
 String delay_timer = "";
 
+//-----------------------------------------------------------------------------------------------------------------------
+
 int char_to_pin(char acc_char){
   int acc_pin;
   switch (acc_char){
@@ -38,10 +40,6 @@ int char_to_pin(char acc_char){
   }
   return acc_pin;
 }
-
-//-----------------------------------------------------------------------------------------------------------------------
-
-
 
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -105,6 +103,12 @@ void setup(){
 Serial.begin(115200);
 
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(15, OUTPUT);
+  pinMode(3, OUTPUT);
+  pinMode(1, OUTPUT);
   
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
