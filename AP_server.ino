@@ -20,10 +20,10 @@ float reg_temp = 20;
 float reg_humi = 60;
 float reg_moist = 30;
 
-String process[5] = {"","","","",""};
-String x[5] = {"","","","",""};
-int process_number_in = 0;
-int process_number_out = 0;
+String process[5] = {"A+2000,B+,C+,A-3000,D+,B-,C-,E+3000", "", "", "", ""};
+String parts[5] = {"4","","","",""};
+unsigned int process_number_in = 0;
+unsigned int process_number_out = 0;
   
 //-----------------------------------------------------------------------------------------------------------------------
 
@@ -96,17 +96,20 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 
 void handleClient1(){
   if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-    if (process_number_out > 4){
-      process_number_out = 0;
-      String response_1 = ("?" + x[process_number_out] + "," + process[process_number_out] + "#");
-      process_number_out += 1; 
-      server.send(200, "text/plain", response_1);
+    process_number_out %= 5;
+    if(process[process_number_out] == "" ){
+      server.send(102, "text/plain", "Nema procesa na serveru");
     }
     else{
-      String response_1 = ("?" + x[process_number_out] + "," + process[process_number_out] + "#");
-      process_number_out += 1; 
-      server.send(200, "text/plain", response_1);
+      if(parts[process_number_out] == ""){
+        server.send(102, "text/plain", "Proces nema ponavljanje");
+      }
+      else{
+        String response_1 = ("?" + parts[process_number_out] + "x" + process[process_number_out] + "#"); 
+        server.send(200, "text/plain", response_1);
+      }
     }
+    process_number_out += 1;
   }
 }  
 
@@ -120,7 +123,6 @@ void handleClient2(){
   }
 }
 
-
 void handleRoot(){
   server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); 
 }
@@ -130,19 +132,13 @@ void handleNotFound(){
 }
  
 void handleInput(){
-  if (process_number_in > 4){
-    process_number_in = 0;
-    process[process_number_in] = server.arg("process");
-    x[process_number_in] = server.arg("x");
-    process_number_in += 1;
-    server.send(200, "text/plain", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist));
-  }
-  else{
-    process[process_number_in] = server.arg("process");
-    x[process_number_in] = server.arg("x");
-    process_number_in += 1;
-    server.send(200, "text/plain", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist));
-  }
+  process_number_in %= 5;
+  process[process_number_in] = server.arg("process");
+  parts[process_number_in] = server.arg("x");
+  process_number_in += 1;
+  server.send(200, "text/plain", "Proces je postavljen na server");
+  
+    
 }
 
 void handleRegulation(){
@@ -155,7 +151,7 @@ void handleRegulation(){
   if (server.arg("reg_moist") != ""){
     reg_moist = server.arg("reg_moist").toFloat();
   }
-  server.send(200, "text/plain", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist));
+  server.send(200, "text/plain", "Vrijednosti regulatora su postavljene.");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
