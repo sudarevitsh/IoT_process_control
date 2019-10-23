@@ -20,6 +20,27 @@ int counter = 0;
 int job_len;
 String delay_timer = "";
 
+int char_to_pin(char acc_char){
+  int acc_pin;
+  switch (acc_char){
+    case 'A':
+    acc_pin = 14;
+    case 'B':
+    acc_pin = 12;
+    case 'C':
+    acc_pin = 13;
+    case 'D':
+    acc_pin = 15;
+    case 'E':
+    acc_pin = 3;
+    case 'F':
+    acc_pin = 1;
+  }
+  return acc_pin;
+}
+
+//-----------------------------------------------------------------------------------------------------------------------
+
 
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -58,11 +79,11 @@ void algorithm(){
       if (com == 'A' || com == 'B' || com == 'C' || com == 'D' || com == 'E' || com == 'F'){
         if(job.charAt(ch_no + 1) == '+'){
           Serial.println("HIGH"); 
-          digitalWrite(job.charAt(ch_no), HIGH);
+          digitalWrite(char_to_pin(com), HIGH);
         }
         else if(job.charAt(ch_no + 1) == '-'){
           Serial.println("LOW");
-          digitalWrite(job.charAt(ch_no), LOW);
+          digitalWrite(char_to_pin(com), LOW);
         }
       }
       else if (com == '1' || com == '2' ||  com == '3' || com == '4' || com == '5' || com == '6' || com == '7' || com == '8' || com == '9' || com == '0'){
