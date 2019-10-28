@@ -22,23 +22,23 @@ String delay_timer = "";
 
 //-----------------------------------------------------------------------------------------------------------------------
 
-int char_to_pin(char acc_char){
-  int acc_pin;
-  switch (acc_char){
+int char_to_pin(char led_char){
+  int led_pin;
+  switch (led_char){
     case 'A':
-    acc_pin = 14;
+    led_pin = 14;
     case 'B':
-    acc_pin = 12;
+    led_pin = 12;
     case 'C':
-    acc_pin = 13;
+    led_pin = 13;
     case 'D':
-    acc_pin = 15;
+    led_pin = 15;
     case 'E':
-    acc_pin = 3;
+    led_pin = 3;
     case 'F':
-    acc_pin = 1;
+    led_pin = 1;
   }
-  return acc_pin;
+  return led_pin;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
