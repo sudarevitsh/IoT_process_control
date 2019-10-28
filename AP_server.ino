@@ -25,10 +25,10 @@
   unsigned int process_number_in = 0;
   unsigned int process_number_out = 0;
 
-  //-----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 
-  String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
-    String html = R"=====(
+String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
+  String html = R"=====(
     <!DOCTYPE html><html>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <head>
@@ -63,8 +63,7 @@
     </fieldset>
         <h3>Klijent #2</h3>
         <p>Klijent koji upravlja sa mikroklimom nekog objekta i prati vrijednost odredjenih velicina.</p>
-        <p>Mikrokontroler prati vrijednosti ovih velicina i na osnovu njih pokrece sisteme za njihovu regulaciju.</p>
-        <p>Sistemi za regulaciju takodje ce biti simulirani LE diodama.</p>
+        <p>Mikrokontroler prati vrijednosti ovih velicina i poredi ih sa zeljenim velicinama koje korisnik unese.</p>
         )=====";
 
         html +="<fieldset class=\"field_class\"><legend>Izmjerene vrijednosti</legend><form action=\"/regulation\" method=\"GET\">\n";
@@ -88,18 +87,18 @@
         html += "</form></fieldset></body>\n";
         html += "</html>\n";
 
-      return html;
-  }
+  return html;
+}
 
-  //-----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 
-  void handleClient1(){
+void handleClient1(){
     if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
       process_number_out %= 5;
       if(process[process_number_out] == "" ){
         server.send(102, "text/plain", "Nema procesa na serveru");
         goto skip;
-        }
+      }
       else{
         if(parts[process_number_out] == ""){
           server.send(102, "text/plain", "Proces nema ponavljanje");
@@ -110,13 +109,15 @@
         }
       }
       process[process_number_out] = "";
-      x[process_number_out] = "";
+      parts[process_number_out] = "";
       process_number_out += 1;
       skip:;
     }
-  }  
+}
 
-  void handleClient2(){
+//-----------------------------------------------------------------------------------------------------------------------
+
+void handleClient2(){
     if (server.arg("client_id") == "2"){                      
       temperature = server.arg("temperature").toFloat();     
       humidity = server.arg("humidity").toFloat();           
@@ -124,25 +125,31 @@
       String response_2 = "?" + String(reg_temp) + "," + String(reg_humi) + "," + String(reg_moist) + "#";
       server.send(200, "text/plain", response_2);     
     }
-  }
+}
 
-  void handleRoot(){
+//-----------------------------------------------------------------------------------------------------------------------
+
+void handleRoot(){
     server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); 
-  }
+}
 
-  void handleNotFound(){
+//-----------------------------------------------------------------------------------------------------------------------
+
+void handleNotFound(){
     server.send(404, "text/plain", "Nije pronadjeno!");
-  }
+}
 
-  void handleInput(){
+//-----------------------------------------------------------------------------------------------------------------------
+
+void handleInput(){
     process_number_in %= 5;
     process[process_number_in] = server.arg("process");
     parts[process_number_in] = server.arg("x");
     process_number_in += 1;
     server.send(200, "text/plain", "Proces je postavljen na server");
+}
 
-
-  }
+//-----------------------------------------------------------------------------------------------------------------------
 
   void handleRegulation(){
     if (server.arg("reg_temp") != ""){
@@ -155,11 +162,11 @@
       reg_moist = server.arg("reg_moist").toFloat();
     }
     server.send(200, "text/plain", "Vrijednosti regulatora su postavljene.");
-  }
+}
 
-  //-----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 
-  void setup(){
+void setup(){
     WiFi.softAP(ssid, password);                                
     WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);       
 
@@ -170,10 +177,10 @@
     server.on("/", handleRoot);                                 
 
     server.begin();                                            
-  }
+}
 
-  //-----------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 
-  void loop(){
+void loop(){
     server.handleClient();  
-  }
+}
