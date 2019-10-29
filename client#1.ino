@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>                                                               //ESP 8266 WiFi biblioteka
 
 //parametri pristupne tačke na koju se klijent povezuje
-const char* ssid = "Zavrsni_Rad";                                                      //naziv pristupne tačke na koju se povezujemo
+const char* ssid = "Zavrsni_Rad";                                                      //naziv pristupne tačke na koju se klijent povezuje
 const char* password = "12345678";                                                     //lozinka pristupne tačke
 
 //parametri servera na koji se šalju zahtjevi
@@ -124,7 +124,7 @@ void algorithm(){
 //osnovni dio programa koji se pokreće samo jednom, koristimo ga za podešavanje
 void setup(){
   
-  //podešavanje izlaznih pinova
+  //podešavanje izlaznih pinova, tj. postavljanje pinova u izlazni mod
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(14, OUTPUT);
   pinMode(12, OUTPUT); 
@@ -135,7 +135,7 @@ void setup(){
 
   pin_reset();                                                                         //resetovanje pinova
    
-  //pokretanje wifi objekta
+  //podešavanje i pokretanje wifi objekta
   WiFi.mode(WIFI_STA);                                                                 //postavljanje u mod stanice
   WiFi.begin(ssid, password);                                                          //početak konekcije sa pristupnom tačkom
   
@@ -163,7 +163,7 @@ void loop(){
     //slanje zahtjeva na server
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));   
     
-    //čekanje odgovora sa servera, ako čekanje traje duže od 5 sekundi, konekcija se prekida
+    //čekanje odgovora sa servera, ako čekanje traje duže od 5 sekundi, veza se prekida
     unsigned long timeout = millis();
     while (client.available() == 0) {
       if (millis() - timeout > 5000) {
@@ -176,7 +176,7 @@ void loop(){
     while (client.connected()){
       if (client.available()){
        
-        String line = client.readStringUntil('$');                                     //čitanje serverovog odgovora 
+        String line = client.readStringUntil('$');                                     //čitanje serverovog odgovora do znaka '$'
                
         unsigned int beginning = line.indexOf('@');                                    //indeks početnog znaka '@'
         unsigned int mid = line.indexOf('x', beginning);                               //indeks znaka 'x' koji razdvaja odgovor  
