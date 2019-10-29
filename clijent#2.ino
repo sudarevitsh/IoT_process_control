@@ -110,7 +110,6 @@ void loop(){
   else if (dht_temp >= reg_temp_val){
     digitalWrite(REG_TEMP, LOW); 
   }
-
   if (dht_humi < reg_humi_val){
     digitalWrite(REG_HUMI, HIGH);       
   }
