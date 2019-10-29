@@ -197,6 +197,7 @@ void setup(){
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//osnovni dio programa koji se stalno ponavlja
 void loop(){
-    server.handleClient();                                                              //server rukuje zahtjevima
+    server.handleClient();                                                              //server "barata" sa zahtjevima
 }
