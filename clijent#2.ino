@@ -2,8 +2,8 @@
 #include "DHT.h"
 
 #define DHT_PIN 13
-#define DHTTYPE DHT21
-DHT dht(DHT_PIN, DHTTYPE);
+#define DHT_TYPE DHT21
+DHT dht(DHT_PIN, DHT_TYPE);
 
 #define AP_SSID "Zavrsni_Rad"
 #define AP_PASS "12345678"
@@ -17,32 +17,32 @@ String route = "/client2/";
 WiFiClient client;                           
 byte id = 2;                              
 
-float dht_temp = 0;                                   
-float dht_humi = 0;                                  
-float soil_moist = 0;                                 
+float dht_temperature = 0;                                   
+float dht_humidity = 0;                                  
+float soil_moisture = 0;                                 
 int moist_value = 0;
 
-unsigned long req_timer = (5*1000);          
+unsigned long request_timer = (5*1000);          
 int interval_counter = 1;                   
 unsigned long time_counter;                  
 
-const int REG_TEMP = 14;                
-const int REG_HUMI = 12;                   
-const int REG_MOIST = 15;    
+const int TEMP_REG_PIN = 14;                
+const int HUMI_REG_PIN = 12;                   
+const int MOIST_REG_PIN = 15;    
 
-String server_line = "";
-float reg_temp_val;
-float reg_humi_val;
-float reg_moist_val;
+String server_response = "";
+float regulator_temeprature;
+float regulator_humidity;
+float regulator_moisture;
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void setup(){
   
   pinMode(LED_BUILTIN, OUTPUT);         
-  pinMode(REG_TEMP, OUTPUT);
-  pinMode(REG_HUMI, OUTPUT);
-  pinMode(REG_MOIST, OUTPUT);
+  pinMode(TEMP_REG_PIN, OUTPUT);
+  pinMode(HUMI_REG_PIN, OUTPUT);
+  pinMode(MOIST_REG_PIN, OUTPUT);
   
   dht.begin();
   delay(50);
@@ -62,18 +62,18 @@ void setup(){
 
 void loop(){
   
-  dht_humi = dht.readHumidity();
-  dht_temp = dht.readTemperature();
+  dht_humidity = dht.readHumidity();
+  dht_temperature = dht.readTemperature();
   moist_value = analogRead(0);
-  soil_moist = constrain(map (moist_value, 1024, 880, 0, 100  ), 0, 100);
+  soil_moisture = constrain(map (moist_value, 1024, 880, 0, 100  ), 0, 100);
 
   time_counter = millis();
-  if(time_counter > req_timer * interval_counter){
+  if(time_counter > request_timer * interval_counter){
     interval_counter += 1; 
           
     client.connect(host_str, port); 
       
-    String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temp) + "&humidity=" + String(dht_humi) + "&soil_moist=" + String(soil_moist));
+    String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temperature) + "&humidity=" + String(dht_humidity) + "&soil_moisture=" + String(soil_moisture));
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
   
     unsigned long timeout = millis();
@@ -87,39 +87,39 @@ void loop(){
     while (client.connected()){
       if (client.available()){
        
-       server_line = client.readStringUntil('#');
+       server_response = client.readStringUntil('#');
        
-       int beginning = server_line.indexOf('?');
-       int com1 = server_line.indexOf(',');
-       reg_temp_val = server_line.substring(beginning + 1, com1).toFloat();
+       int beginning = server_response.indexOf('?');
+       int com1 = server_response.indexOf(',');
+       regulator_temeprature = server_response.substring(beginning + 1, com1).toFloat();
         
-       int com2 = server_line.indexOf(',', com1 + 1);
-       reg_humi_val = server_line.substring(com1 + 1, com2).toFloat();
+       int com2 = server_response.indexOf(',', com1 + 1);
+       regulator_humidity = server_response.substring(com1 + 1, com2).toFloat();
         
-       int ending = server_line.indexOf('#');
-       reg_moist_val = server_line.substring(com2 + 1, ending).toFloat();
+       int ending = server_response.indexOf('#');
+       regulator_moisture = server_response.substring(com2 + 1, ending).toFloat();
 
       }
     }
     client.stop(); 
   }
   
-  if (dht_temp < reg_temp_val){
-    digitalWrite(REG_TEMP, HIGH);       
+  if (dht_temperature < regulator_temeprature){
+    digitalWrite(TEMP_REG_PIN, HIGH);       
   }
-  else if (dht_temp >= reg_temp_val){
-    digitalWrite(REG_TEMP, LOW); 
+  else if (dht_temperature >= regulator_temeprature){
+    digitalWrite(TEMP_REG_PIN, LOW); 
   }
-  if (dht_humi < reg_humi_val){
-    digitalWrite(REG_HUMI, HIGH);       
+  if (dht_humidity < regulator_humidity){
+    digitalWrite(HUMI_REG_PIN, HIGH);       
   }
-  else if (dht_humi >= reg_humi_val){
-    digitalWrite(REG_HUMI, LOW);
+  else if (dht_humidity >= regulator_humidity){
+    digitalWrite(HUMI_REG_PIN, LOW);
   }
-  if (soil_moist < reg_moist_val){
-    digitalWrite(REG_MOIST, HIGH);  
+  if (soil_moisture < regulator_moisture){
+    digitalWrite(MOIST_REG_PIN, HIGH);  
   }
-  else if (soil_moist >= reg_moist_val){
-    digitalWrite(REG_MOIST, LOW);
+  else if (soil_moisture >= regulator_moisture){
+    digitalWrite(MOIST_REG_PIN, LOW);
   }
 }
