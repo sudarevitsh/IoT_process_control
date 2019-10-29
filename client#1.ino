@@ -13,11 +13,11 @@ byte id = 1;
 boolean client_free = true;
 String job = "";
 int parts;
-unsigned int ch_no = 0;
-int spec_count = 0;
-int opps = 0;
+unsigned int char_number = 0;
+int break_count = 0;
+int operations = 0;
 int counter = 0;
-int job_len;
+int job_lengthgth;
 String delay_timer = "";
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -60,38 +60,38 @@ void pin_reset(){
 
 void algorithm(){  
   for(int part_count = 1; part_count <= parts; part_count++){
-    job_len = job.length();
-    for (ch_no = 0; ch_no < job_len ; ch_no ++){
-      char com = job.charAt(ch_no);
+    job_lengthgth = job.length();
+    for (char_number = 0; char_number < job_lengthgth ; char_number ++){
+      char com = job.charAt(char_number);
       if ( com == '?' || com == ',' || com == '#'){
-        spec_count += 1;
+        break_count += 1;
       }
   }
 
-  int char_place[spec_count];
+  int char_place[break_count];
   memset(char_place, 0, sizeof(char_place));
-  int opps = 0; 
+  int operations = 0; 
   
   
-  for (int ch_no = 0; ch_no < job_len; ch_no ++){
-    char com = job.charAt(ch_no);
+  for (int char_number = 0; char_number < job_lengthgth; char_number ++){
+    char com = job.charAt(char_number);
     if (com == '?' || com == ',' || com == '#'){
-      char_place[opps] = ch_no;  
-      opps += 1;  
+      char_place[operations] = char_number;  
+      operations += 1;  
     }
 
   } 
   Serial.println("prebrojavanje i indeksi su dobri!");
-  for(counter = 0; counter < spec_count - 1; counter ++){
+  for(counter = 0; counter < break_count - 1; counter ++){
     Serial.print("Counter je: ");Serial.println(counter);
     delay_timer = "";
-    for(ch_no = char_place[counter] + 1; ch_no < char_place[counter + 1]; ch_no ++){
-      char com = job.charAt(ch_no);
+    for(char_number = char_place[counter] + 1; char_number < char_place[counter + 1]; char_number ++){
+      char com = job.charAt(char_number);
       if (com == 'A' || com == 'B' || com == 'C' || com == 'D' || com == 'E' || com == 'F'){
-        if(job.charAt(ch_no + 1) == '+'){
+        if(job.charAt(char_number + 1) == '+'){
           digitalWrite(char_to_pin(com), HIGH);          
         }
-        else if(job.charAt(ch_no + 1) == '-'){
+        else if(job.charAt(char_number + 1) == '-'){
           digitalWrite(char_to_pin(com), LOW); 
         }
       }
@@ -103,7 +103,7 @@ void algorithm(){
     Serial.print("Vremenski period je:");Serial.println(delay_timer.toInt());
     delay(delay_timer.toInt());
   }
-  spec_count = 0;
+  break_count = 0;
   pin_reset();
   Serial.print("Dijelova napravljeno");Serial.println(part_count);
   
