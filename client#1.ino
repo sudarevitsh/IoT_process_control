@@ -90,9 +90,8 @@ void algorithm(){
     }
 
   } 
-  Serial.println("prebrojavanje i indeksi su dobri!");
+ 
   for(counter = 0; counter < break_count - 1; counter ++){                             //brojač znakova u jednoj radnji
-    Serial.print("Counter je: ");Serial.println(counter);
     delay_timer = "";                                                                  //resetovanje tajmera trajanja stanja
     
    //brojač indeksa svakog od znakova unutar jedne radnje
@@ -111,16 +110,12 @@ void algorithm(){
       }
       else if (com == '1' || com == '2' ||  com == '3' || com == '4' || com == '5' || com == '6' || com == '7' || com == '8' || com == '9' || com == '0'){
         delay_timer += String(com);                                                    //ako se radi o broju, on se koncentriše sa dosadašnjim brojevma
-      }
-           
+      }       
     }
-    Serial.print("Vremenski period je:");Serial.println(delay_timer.toInt());
     delay(delay_timer.toInt());                                                        //niz brojeva se pretvara u cjelobrojnu vrijednost i čeka se
   }
   break_count = 0;                                                                     //resetovanje brojača
-  pin_reset();                                                                         //resetovanje pinova
-  Serial.print("Dijelova napravljeno");Serial.println(part_count);
-  
+  pin_reset();                                                                         //resetovanje pinova  
   }
 }
 
@@ -128,7 +123,6 @@ void algorithm(){
 
 //osnovni dio programa koji se pokreće samo jednom, koristimo ga za podešavanje
 void setup(){
-Serial.begin(115200);
   
   //podešavanje izlaznih pinova
   pinMode(LED_BUILTIN, OUTPUT);
@@ -158,8 +152,6 @@ Serial.begin(115200);
 
 //osnovni dio programa koji se stalno ponavlja
 void loop(){
-  Serial.println("Pinovi resetovani");
-  delay(5);
  
   //slanje zahtjeva serveru za novi posao, na osnovu stanja klijenta
   if(client_free){
@@ -170,7 +162,6 @@ void loop(){
    
     //slanje zahtjeva na server
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));   
-    Serial.println("Send!");
     
     //čekanje odgovora sa servera, ako čekanje traje duže od 5 sekundi, konekcija se prekida
     unsigned long timeout = millis();
@@ -186,25 +177,16 @@ void loop(){
       if (client.available()){
        
         String line = client.readStringUntil('$');                                     //čitanje serverovog odgovora 
-        Serial.println(line);
-        
+               
         unsigned int beginning = line.indexOf('@');                                    //indeks početnog znaka '@'
-        Serial.print("pocetni indeks ");Serial.println(beginning);
         unsigned int mid = line.indexOf('x', beginning);                               //indeks znaka 'x' koji razdvaja odgovor  
-        Serial.print("srednji indeks ");Serial.println(mid);
         unsigned int ending = line.indexOf('#', beginning );                           //indeks posljednjeg željenog znaka '#'
-        Serial.print("krajnji indeks ");Serial.println(ending);
-        delay(30);
         
         //izvlačenje željenih vrijednosti iz odgovora
         parts = line.substring(beginning + 1, mid).toInt();                            //broj komada, tj. ponavljanja procesa
         job = line.substring(mid + 1 , ending + 1);                                    //proces koji je klijent unio
         
-        client.flush();                                                                //brisanje svih neočitanih bitova
-        
-        Serial.print("Zadatak je ovaj:");Serial.println(job);
-        Serial.print("Dijelova treba:");Serial.println(parts);
-        delay(30);          
+        client.flush();                                                                //brisanje svih neočitanih bitova        
       }
     }
     client_free = false;                                                               //promjena stanja klijenta u "zauzet"
@@ -213,10 +195,8 @@ void loop(){
   //izvršavanje procesa kroz već opisani algoritam
   while (!client_free){
       algorithm();
-      Serial.println("Algoritam gotov!");
    
       //kada se proces/posao obavi, klijent je ponovo slobodan i može da zahtjeva novi posao od servera
       client_free = true;                                                               
-      Serial.println("Trazi se novi posao, pin reset!");
   } 
 }
