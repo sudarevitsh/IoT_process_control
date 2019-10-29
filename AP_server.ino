@@ -16,16 +16,16 @@
   float humidity = 0;                                      
   float soil_moist = 0;                                     
 
-  float reg_temp = 20;
-  float reg_humi = 60;
-  float reg_moist = 30;
+  float reg_temperature = 20;
+  float reg_humidity = 60;
+  float reg_moisture = 30;
 
-  String process[5] = {"A+2000,B+,C+,A-3000,D+,B-,C-,E+3000", "", "", "", ""};
-  String parts[5] = {"4","","","",""};
+  String process[5] = {"", "", "", "", ""};
+  String parts[5] = {"","","","",""};
   unsigned int process_number_in = 0;
   unsigned int process_number_out = 0;
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
   String html = R"=====(
@@ -90,7 +90,7 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
   return html;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void handleClient1(){
     if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
@@ -115,31 +115,31 @@ void handleClient1(){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void handleClient2(){
     if (server.arg("client_id") == "2"){                      
       temperature = server.arg("temperature").toFloat();     
       humidity = server.arg("humidity").toFloat();           
       soil_moist = server.arg("soil_moist").toFloat();  
-      String response_2 = "?" + String(reg_temp) + "," + String(reg_humi) + "," + String(reg_moist) + "#";
+      String response_2 = "?" + String(reg_temperature) + "," + String(reg_humidity) + "," + String(reg_moisture) + "#";
       server.send(200, "text/plain", response_2);     
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void handleRoot(){
-    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp, reg_humi, reg_moist)); 
+    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temperature, reg_humidity, reg_moisture)); 
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void handleNotFound(){
     server.send(404, "text/plain", "Nije pronadjeno!");
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void handleInput(){
     process_number_in %= 5;
@@ -149,22 +149,22 @@ void handleInput(){
     server.send(200, "text/plain", "Proces je postavljen na server");
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
   void handleRegulation(){
     if (server.arg("reg_temp") != ""){
-      reg_temp = server.arg("reg_temp").toFloat();
+      reg_temperature = server.arg("reg_temp").toFloat();
     }
     if (server.arg("reg_humi") != ""){
-      reg_humi = server.arg("reg_humi").toFloat();
+      reg_humidity = server.arg("reg_humi").toFloat();
     }
     if (server.arg("reg_moist") != ""){
-      reg_moist = server.arg("reg_moist").toFloat();
+      reg_moisture = server.arg("reg_moist").toFloat();
     }
     server.send(200, "text/plain", "Vrijednosti regulatora su postavljene.");
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void setup(){
     WiFi.softAP(ssid, password);                                
@@ -179,7 +179,7 @@ void setup(){
     server.begin();                                            
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------------------
 
 void loop(){
     server.handleClient();  
