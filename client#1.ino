@@ -17,7 +17,7 @@ unsigned int char_number = 0;
 int break_count = 0;
 int operations = 0;
 int counter = 0;
-int job_lengthgth;
+int job_length;
 String delay_timer = "";
 
 //-----------------------------------------------------------------------------------------------------------------------
@@ -60,8 +60,8 @@ void pin_reset(){
 
 void algorithm(){  
   for(int part_count = 1; part_count <= parts; part_count++){
-    job_lengthgth = job.length();
-    for (char_number = 0; char_number < job_lengthgth ; char_number ++){
+    job_length = job.length();
+    for (char_number = 0; char_number < job_length ; char_number ++){
       char com = job.charAt(char_number);
       if ( com == '?' || com == ',' || com == '#'){
         break_count += 1;
@@ -73,7 +73,7 @@ void algorithm(){
   int operations = 0; 
   
   
-  for (int char_number = 0; char_number < job_lengthgth; char_number ++){
+  for (int char_number = 0; char_number < job_length; char_number ++){
     char com = job.charAt(char_number);
     if (com == '?' || com == ',' || com == '#'){
       char_place[operations] = char_number;  
