@@ -108,33 +108,33 @@ void loop(){
     client.stop(); 
   }
   
-  if (dht_temp > reg_temp_val){
+  if (dht_temp < reg_temp_val){
     digitalWrite(REG_TEMP, HIGH);  
     Serial.println("TEMP HIGH");    
     delay(50);  
   }
-  else if (dht_temp <= reg_temp_val){
+  else if (dht_temp >= reg_temp_val){
     digitalWrite(REG_TEMP, LOW); 
     Serial.println("TEMP LOW");   
     delay(50); 
   }
 
-  if (dht_humi > reg_humi_val){
+  if (dht_humi < reg_humi_val){
     digitalWrite(REG_HUMI, HIGH);  
     Serial.println("HUMI HIGH"); 
     delay(50);     
   }
-  else if (dht_humi <= reg_humi_val){
+  else if (dht_humi >= reg_humi_val){
     digitalWrite(REG_HUMI, LOW);
     Serial.println("HUMI LOW"); 
     delay(50);
   }
-  if (soil_moist > reg_moist_val){
+  if (soil_moist < reg_moist_val){
     digitalWrite(REG_MOIST, HIGH); 
     Serial.println("MOIST HIGH");
     delay(50);  
   }
-  else if (soil_moist <= reg_moist_val){
+  else if (soil_moist >= reg_moist_val){
     digitalWrite(REG_MOIST, LOW);
     Serial.println("MOIST LOW`"); 
     delay(50);
