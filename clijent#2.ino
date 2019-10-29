@@ -22,7 +22,7 @@ float dht_humi = 0;
 float soil_moist = 0;                                 
 int moist_value = 0;
 
-unsigned long req_timer = (1000);          
+unsigned long req_timer = (10000);          
 int interval_counter = 1;                   
 unsigned long time_counter;                  
 
@@ -63,24 +63,26 @@ void setup(){
 void loop(){
   Serial.begin(115200);
   dht_humi = dht.readHumidity();
+  Serial.println(dht_humi);
   dht_temp = dht.readTemperature();
+  Serial.println(dht_temp);
   moist_value = analogRead(0);
-  Serial.println(moist_value);
-
-  soil_moist = constrain(map (moist_value, 1024, 880, 0, 100), 0, 100);
+  soil_moist = constrain(map (moist_value, 1024, 880, 0, 100  ), 0, 100);
   Serial.println(soil_moist);
+  delay(50);
+
   time_counter = millis();
-  if(time_counter > (req_timer * interval_counter)){
+  if(time_counter > req_timer * interval_counter){
     interval_counter += 1; 
           
     client.connect(host_str, port); 
       
     String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temp) + "&humidity=" + String(dht_humi) + "&soil_moist=" + String(soil_moist));
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
-
+    Serial.println("Poslano");
     unsigned long timeout = millis();
     while (client.available() == 0) {
-      if (millis() - timeout > 3000) {
+      if (millis() - timeout > 5000) {
         client.stop();
         return;
       }
@@ -93,7 +95,7 @@ void loop(){
        
        int beginning = server_line.indexOf('?');
        int com1 = server_line.indexOf(',');
-       reg_temp_val = server_line.substring(begining + 1, com1).toFloat();
+       reg_temp_val = server_line.substring(beginning + 1, com1).toFloat();
         
        int com2 = server_line.indexOf(',', com1 + 1);
        reg_humi_val = server_line.substring(com1 + 1, com2).toFloat();
@@ -107,22 +109,34 @@ void loop(){
   }
   
   if (dht_temp > reg_temp_val){
-    digitalWrite(REG_TEMP, HIGH);         
+    digitalWrite(REG_TEMP, HIGH);  
+    Serial.println("TEMP HIGH");    
+    delay(50);  
   }
   else if (dht_temp <= reg_temp_val){
-    digitalWrite(REG_TEMP, LOW);    
+    digitalWrite(REG_TEMP, LOW); 
+    Serial.println("TEMP LOW");   
+    delay(50); 
   }
 
   if (dht_humi > reg_humi_val){
-    digitalWrite(REG_HUMI, HIGH);       
+    digitalWrite(REG_HUMI, HIGH);  
+    Serial.println("HUMI HIGH"); 
+    delay(50);     
   }
   else if (dht_humi <= reg_humi_val){
     digitalWrite(REG_HUMI, LOW);
+    Serial.println("HUMI LOW"); 
+    delay(50);
   }
   if (soil_moist > reg_moist_val){
-    digitalWrite(REG_MOIST, HIGH);  
+    digitalWrite(REG_MOIST, HIGH); 
+    Serial.println("MOIST HIGH");
+    delay(50);  
   }
   else if (soil_moist <= reg_moist_val){
     digitalWrite(REG_MOIST, LOW);
+    Serial.println("MOIST LOW`"); 
+    delay(50);
   }
 }
