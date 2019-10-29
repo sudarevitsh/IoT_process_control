@@ -1,32 +1,39 @@
-  #include <ESP8266WiFi.h>
-  #include <ESP8266WebServer.h>
+#include <ESP8266WiFi.h>                                                               //ESP8266 WiFi biblioteka
+#include <ESP8266WebServer.h>                                                          //ESP8266 Server biblioteka
 
-  #define AP_SSID "Zavrsni_Rad"                                
-  #define AP_PASS "12345678"                                  
+//podešavanja pristupne tačke (Access Point) 
+#define AP_SSID "Zavrsni_Rad"                                                          //SSID pristupne tačke
+#define AP_PASS "12345678"                                                             //Lozinka pristupne tačke
+const char* ssid = AP_SSID;                                                              
+const char* password = AP_PASS;                             
 
-  const char* ssid = AP_SSID;                                
-  const char* password = AP_PASS;                             
+IPAddress ap_ip (8, 8, 8, 8);                                                          //IP adresa pristupne tačke
+IPAddress subnet_mask (255, 255, 255, 0);                                              //Maska podmreže
 
-  IPAddress ap_ip (8, 8, 8, 8);                              
-  IPAddress subnet_mask (255, 255, 255, 0);                 
+//podešavanje servera na pristupnoj tački
+ESP8266WebServer server(80);                                                           //pokretanje servera, sa portom 80
 
-  ESP8266WebServer server(80);
+//vrijednosti veličina koje mjeri klijent 2 se čuvaju u ovim promjenljivim
+float temperature = 0;                                                                 //izmjerena temperatura
+float humidity = 0;                                                                    //izmjerena vlažnost vazduha
+float soil_moist = 0;                                                                  //izmjerena vlažnost zemljišta
 
-  float temperature = 0;                                      
-  float humidity = 0;                                      
-  float soil_moist = 0;                                     
+//početne (default) vrijednosti parametara regulatora koje se šalju klijentu 2, korisnik može da ih izmjeni preko telefona
+float reg_temperature = 20;                                                            //vrijednost na kojoj se reguliše temperatura
+float reg_humidity = 60;                                                               //vrijednost na kojoj se reguliše vlažnost vazduha
+float reg_moisture = 30;                                                               //vrijednost na kojoj se reguliše vlažnost zemlje 
 
-  float reg_temperature = 20;
-  float reg_humidity = 60;
-  float reg_moisture = 30;
+//nizovi u kojima se čuvaju uneseni poslovi i ponavljanja, prije nego što se pošalju ka klijentu 1 na izvršavanje
+String process[5] = {"", "", "", "", ""};                                              //niz procesa koji se nalaze na serveru
+String parts[5] = {"","","","",""};                                                    //niz broja ponavljanja procesa 
 
-  String process[5] = {"", "", "", "", ""};
-  String parts[5] = {"","","","",""};
-  unsigned int process_number_in = 0;
-  unsigned int process_number_out = 0;
+unsigned int process_number_in = 0;                                                    //indeks unesenog procesa
+unsigned int process_number_out = 0;                                                   //indeks poslatog procesa
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//web stranica definisana u obliku funkcije sa parametrima temperature, vlažnosti i vrijednosti na kojima se reguliše
+//detaljnije objašnjena u radu
 String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP, float REG_HUMI, float REG_MOIST){
   String html = R"=====(
     <!DOCTYPE html><html>
@@ -92,36 +99,40 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//funkcija koja se pokreće prilikom zahtjeva klijenta 1
 void handleClient1(){
-    if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){
-      process_number_out %= 5;
-      if(process[process_number_out] == "" ){
+    if(server.arg("client_id") == "1" && server.arg("client_free" == "1")){            //provjerava se ID i stanje klijenta
+      process_number_out %= 5; 
+      if(process[process_number_out] == "" ){                                          //slanje odgovora kada nema procesa/posla
         server.send(102, "text/plain", "Nema procesa na serveru");
-        goto skip;
+        goto skip;                                                                     //izlazak iz petlje
       }
       else{
-        if(parts[process_number_out] == ""){
+        if(parts[process_number_out] == ""){                                           //slanje odgovora kada nema broja komada
           server.send(102, "text/plain", "Proces nema ponavljanje");
         }
-        else{
+        else{                                                                          //slanje procesa kada su svi uslovi ispunjeni
           String response_1 = ("@" + parts[process_number_out] + "x?" + process[process_number_out] + "#$"); 
           server.send(200, "text/plain", response_1);
         }
       }
-      process[process_number_out] = "";
-      parts[process_number_out] = "";
-      process_number_out += 1;
-      skip:;
+      process[process_number_out] = "";                                                //brisanje procesa koji je upravo poslan 
+      parts[process_number_out] = "";                                                  //brisanje broja komada poslanog procesa
+      process_number_out += 1;                                                         //povećavanje indeksa za 1
+      skip:;                                                                           //izlaz iz petlje
     }
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//funkcija koja se pokreće prilikom zahtjeva klijenta 2
 void handleClient2(){
-    if (server.arg("client_id") == "2"){                      
-      temperature = server.arg("temperature").toFloat();     
-      humidity = server.arg("humidity").toFloat();           
-      soil_moist = server.arg("soil_moist").toFloat();  
+    if (server.arg("client_id") == "2"){                                               //provjeranja klijenta
+      temperature = server.arg("temperature").toFloat();                               //očitavanje temperature sa klijenta 2
+      humidity = server.arg("humidity").toFloat();                                     //očitavanje vlaž.vazduha sa klijenta 2
+      soil_moist = server.arg("soil_moist").toFloat();                                 //očitavanje vlaž.zemljišta sa klijenta 2
+      
+      //slanje novih vrijednosti na kojima se regulišu izmjerene veličine na klijentu 2
       String response_2 = "?" + String(reg_temperature) + "," + String(reg_humidity) + "," + String(reg_moisture) + "#";
       server.send(200, "text/plain", response_2);     
     }
@@ -129,58 +140,63 @@ void handleClient2(){
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//funkcija koja se pokreće kada se otvori stranica i koja šalje funkciju web stranice kao odgovor
 void handleRoot(){
     server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temperature, reg_humidity, reg_moisture)); 
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//funkcija koja se pokreće kada se unese nepoznata ruta na server
 void handleNotFound(){
     server.send(404, "text/plain", "Nije pronadjeno!");
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//funkcija koja se pokreće prilikom korisnikovog unosa procesa preko web stranice
 void handleInput(){
-    process_number_in %= 5;
-    process[process_number_in] = server.arg("process");
-    parts[process_number_in] = server.arg("x");
-    process_number_in += 1;
+    process_number_in %= 5;                                                            //indeks na koji se unose vrijednosti
+    process[process_number_in] = server.arg("process");                                //spremanje procesa
+    parts[process_number_in] = server.arg("x");                                        //spremanje broja komada
+    process_number_in += 1;                                                            //povećanje indeksa za 1
     server.send(200, "text/plain", "Proces je postavljen na server");
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
-  void handleRegulation(){
-    if (server.arg("reg_temp") != ""){
-      reg_temperature = server.arg("reg_temp").toFloat();
+//funkcija koja se pokreće prilikom unosa novih vrijednosti na kojima se odvija regulacija veličina (klijent 2)
+void handleRegulation(){
+    if (server.arg("reg_temp") != ""){                                                 //nastavlja ako unos nije prazno polje...
+      reg_temperature = server.arg("reg_temp").toFloat();                              //očitavanje nove temperature za regulisanje
     }
     if (server.arg("reg_humi") != ""){
-      reg_humidity = server.arg("reg_humi").toFloat();
+      reg_humidity = server.arg("reg_humi").toFloat();                                 //očitavanje nove vlaž.vazduha za regulisanje
     }
     if (server.arg("reg_moist") != ""){
-      reg_moisture = server.arg("reg_moist").toFloat();
+      reg_moisture = server.arg("reg_moist").toFloat();                                //očitavanje nove vlaž.zemlje za regulisanje  
     }
     server.send(200, "text/plain", "Vrijednosti regulatora su postavljene.");
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
+//osnovni dio programa koji se pokreće samo jednom, koristimo ga za podešavanje 
 void setup(){
-    WiFi.softAP(ssid, password);                                
-    WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);       
+    WiFi.softAP(ssid, password);                                                       //pokretanje pristupne tačke
+    WiFi.softAPConfig(ap_ip, ap_ip, subnet_mask);                                      //podešavanje parametara pristupne tačke
 
-    server.on("/client1/", HTTP_GET, handleClient1);          
-    server.on("/client2/", HTTP_GET, handleClient2);          
-    server.on("/input", HTTP_GET, handleInput);
-    server.on("/regulation", HTTP_GET, handleRegulation);
-    server.on("/", handleRoot);                                 
+    server.on("/client1/", HTTP_GET, handleClient1);                                   //ruta klijenta 1
+    server.on("/client2/", HTTP_GET, handleClient2);                                   //ruta klijenta 2
+    server.on("/input", HTTP_GET, handleInput);                                        //ruta unosa procesa
+    server.on("/regulation", HTTP_GET, handleRegulation);                              //ruta unosa novih vrijednosti regulatora
+    server.on("/", handleRoot);                                                        //osnovna ruta (korijen), tj. web stranica
 
-    server.begin();                                            
+    server.begin();                                                                    //server prati dolazeće zahtjeve
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-    server.handleClient();  
+    server.handleClient();                                                              //server rukuje zahtjevima
 }
