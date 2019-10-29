@@ -1,55 +1,64 @@
-#include <ESP8266WiFi.h> 
-#include "DHT.h"
+#include <ESP8266WiFi.h>                                                               //ESP 8266 WiFi biblioteka
+#include <DHT.h>                                                                       //biblioteka senzora temperature i vlaž.vazduha
 
-#define DHT_PIN 13
-#define DHT_TYPE DHT21
-DHT dht(DHT_PIN, DHT_TYPE);
+#define DHT_PIN 13                                                                     //definisanje pina DHT senzora
+#define DHT_TYPE DHT21                                                                 //vrsta DHT senzora
+DHT dht(DHT_PIN, DHT_TYPE);                                                            //inicijalizacija DHT objekta
 
-#define AP_SSID "Zavrsni_Rad"
-#define AP_PASS "12345678"
-const char* ssid = AP_SSID;            
-const char* password = AP_PASS;            
+//parametri pristupne tačke na koju se klijent povezuje
+const char* ssid = "Zavrsni_rad";                                                      //naziv pristupne tačke na koju se klijent povezuje    
+const char* password = "12345678";                                                     //lozinka pristupne tačke
 
-byte port = 80;                          
-String host_str = "8.8.8.8";                   
-String route = "/client2/";                   
+//parametri servera na koji se šalju zahtjevi
+byte port = 80;                                                                        //port preko kog se pristupa serveru     
+String host_str = "8.8.8.8";                                                           //IP adresa servera
+String route = "/client2/";                                                            //rezervisana ruta za klijenta 2
 
-WiFiClient client;                           
-byte id = 2;                              
+//inicijalizacija klijenta
+WiFiClient client;                                                                     //inicijalizacija wifi klijenta 
+byte id = 2;                                                                           //ID broj klijenta
 
-float dht_temperature = 0;                                   
-float dht_humidity = 0;                                  
-float soil_moisture = 0;                                 
-int moist_value = 0;
+//vrijednosti mjerenih veličina
+float dht_temperature = 0;                                                             //vrijednost temperature
+float dht_humidity = 0;                                                                //vrijednost vlažnosti vazduha
+float soil_moisture = 0;                                                               //vrijednost vlažnosti zemljišta, nakon pretvaranja
+int moist_value = 0;                                                                   //očitavanje senzora za vlažnost zemljišta
 
-unsigned long request_timer = (5*1000);          
-int interval_counter = 1;                   
-unsigned long time_counter;                  
+//promjenljive kojima se kontroliše vrijeme između dva poslata zahtjeva
+unsigned long request_timer = (5*1000);                                                //vremenski interval nakon kog se šalje novi zahtjev (5 sek.)
+int interval_counter = 1;                                                              //brojač vremenskih intervala (broj zahtjeva umanjen za 1)
+unsigned long time_counter;                                                            //brojač vremena od početnog trenutka
 
-const int TEMP_REG_PIN = 14;                
-const int HUMI_REG_PIN = 12;                   
-const int MOIST_REG_PIN = 15;    
+//brojevi pinova sa kojih se šalju upravljački signali na regulatore
+const int TEMP_REG_PIN = 14;                                                           //pin regulatora temperature
+const int HUMI_REG_PIN = 12;                                                           //pin regulatora vlažnosti vazduha
+const int MOIST_REG_PIN = 15;                                                          //pin regulatora vlažnosti vazduha
 
-String server_response = "";
-float regulator_temeprature;
-float regulator_humidity;
-float regulator_moisture;
+//vrijednosti primljene od servera, primljenim vrijednostima se reguliše samo donja granica željenih veličina
+String server_response = "";                                                           //String objekat serverovog odgovora
+float regulator_temeprature;                                                           //vrijednost na kojoj se reguliše temperatura
+float regulator_humidity;                                                              //vrijednost na kojoj se reguliše vlažnost vazduha
+float regulator_moisture;                                                              //vrijednost na kojoj se reguliše vlažnost zemlje
 
-//-----------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------
 
+//osnovni dio programa koji se izvršava samo jednom
 void setup(){
   
+  //podešavanje izlaza, tj. postavljanje pinova u izlazni mod
   pinMode(LED_BUILTIN, OUTPUT);         
   pinMode(TEMP_REG_PIN, OUTPUT);
   pinMode(HUMI_REG_PIN, OUTPUT);
   pinMode(MOIST_REG_PIN, OUTPUT);
   
-  dht.begin();
-  delay(50);
+  dht.begin();                                                                         //pokretanje DHT senzora (objekta)
+  delay(50);                                                                           //kratki zastoj zboh pokretanja senzora
   
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  //podešavanje i pokretanje wifi objekta
+  WiFi.mode(WIFI_STA);                                                                 //postavljanje u mod stanice
+  WiFi.begin(ssid, password);                                                          //početak konekcije sa pristupnom tačkom
   
+  //signalizacija da povezivanje i dalje traje...
   while(WiFi.status() != WL_CONNECTED){
     digitalWrite(LED_BUILTIN, LOW);
     delay(200);
@@ -58,24 +67,32 @@ void setup(){
   }  
 }
 
-//-----------------------------------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------------------------------------------------------
 
+//osnovni dio programa koji se stalno ponavlja
 void loop(){
   
-  dht_humidity = dht.readHumidity();
-  dht_temperature = dht.readTemperature();
-  moist_value = analogRead(0);
-  soil_moisture = constrain(map (moist_value, 1024, 880, 0, 100  ), 0, 100);
+  dht_humidity = dht.readHumidity();                                                   //očitavanje vrijednosti temperature sa DHT senzora
+  dht_temperature = dht.readTemperature();                                             //očitavanje vrijednosti vlaž.vazduha sa DHT senzora
+  moist_value = analogRead(0);                                                         //očitavanje vrijednosti sa senzora vlažnosti zemlje
+  soil_moisture = constrain(map (moist_value, 1024, 880, 0, 100  ), 0, 100);           //mapiranje i ograničavanje vrijednosti vlažnosti zemlje
 
+  //slanje zahtjeva na server, ako je protekao određen vremenski period, kako je "millis()" funkcija koja daje vrijednost od početnog trenutka...
+  //koristi se promjenljiva "interval_counter" kojom se množi željeni vremenski period da bi se postigao željeni vremenski interval u toku rada
   time_counter = millis();
   if(time_counter > request_timer * interval_counter){
     interval_counter += 1; 
           
-    client.connect(host_str, port); 
+    client.connect(host_str, port);                                                    //povezivanje klijenta sa serverom
       
+    //formiranje zahtjeva sa ID brojem kako bi server mogao da zna o kom klijentu se radi i očitavanjima sa senzora...
+    //na ovaj način nema potrebe za POST zahtjevom jer su vrijednosti svakako skrivene od korisnika
     String request = String(route + "?client_id=" + String(id) + "&temperature=" + String(dht_temperature) + "&humidity=" + String(dht_humidity) + "&soil_moisture=" + String(soil_moisture));
+    
+    //slanje zahtjeva na server
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: close\r\n\r\n"));
   
+    //čekanje odgovora sa servera, ako čekanje traje duže od 5 sekundi, konekcija se prekida
     unsigned long timeout = millis();
     while (client.available() == 0) {
       if (millis() - timeout > 5000) {
@@ -84,41 +101,60 @@ void loop(){
       }
     }
     
+    //čitanje odgovora sa servera, a zatim potraga za željenim dijelovima tog odgovora
     while (client.connected()){
       if (client.available()){
        
-       server_response = client.readStringUntil('#');
+       server_response = client.readStringUntil('#');                                  //čitanje zahtjeva sve do znaka '#'
        
-       int beginning = server_response.indexOf('?');
-       int com1 = server_response.indexOf(',');
+       int beginning = server_response.indexOf('@');                                   //indeks početnog znaka '@'
+       int com1 = server_response.indexOf(',');                                        //indeks prvog veznika 'x'
+       
+       //izvlačenje vrijednosti na kojoj se reguliše temperatura iz odgovora servera
        regulator_temeprature = server_response.substring(beginning + 1, com1).toFloat();
         
-       int com2 = server_response.indexOf(',', com1 + 1);
-       regulator_humidity = server_response.substring(com1 + 1, com2).toFloat();
+       int com2 = server_response.indexOf(',', com1 + 1);                              //indeks drugog veznika 'x'
+       
+       //izvlačenje vrijednosti na kojoj se reguliše vlažnost vazduha iz odgovora servera 
+       regulator_humidity = server_response.substring(com1 + 1, com2).toFloat();       
         
-       int ending = server_response.indexOf('#');
+       int ending = server_response.indexOf('#');                                      //indeks završnog znaka '#'
+       
+       //izvlačenje vrijednosti na kojoj se reguliše vlažnost zemljišta iz odgovora servera
        regulator_moisture = server_response.substring(com2 + 1, ending).toFloat();
-
       }
     }
-    client.stop(); 
+    client.stop();                                                                     //prekid veze sa serverom
   }
   
+  //regulisanje mjerenih veličina na osnovu vrijednosti koje je korisnik unio
+  
+  //uključenje regulatora temperature ako je izmjerena vrijednost manja od unesene
   if (dht_temperature < regulator_temeprature){
-    digitalWrite(TEMP_REG_PIN, HIGH);       
+    digitalWrite(TEMP_REG_PIN, HIGH);                                                  
   }
+  
+  //isključenje regulatora temperature ako ne vrijedi prethodno
   else if (dht_temperature >= regulator_temeprature){
     digitalWrite(TEMP_REG_PIN, LOW); 
   }
+  
+  //uključenje regulatora vlažnosti vazduha ako je izmjerena vrijednost manja od unesene
   if (dht_humidity < regulator_humidity){
     digitalWrite(HUMI_REG_PIN, HIGH);       
   }
+  
+  //isključenje regulatora vlažnosti vazduha ako ne vrijedi prethodno
   else if (dht_humidity >= regulator_humidity){
     digitalWrite(HUMI_REG_PIN, LOW);
   }
+  
+  //uključenje regulatora vlažnosti zemljišta ako je izmjerena vrijednost manja od unesene
   if (soil_moisture < regulator_moisture){
     digitalWrite(MOIST_REG_PIN, HIGH);  
   }
+  
+  //isključenje regulatora vlažnosti zemljišta ako ne vrijedi prethodno
   else if (soil_moisture >= regulator_moisture){
     digitalWrite(MOIST_REG_PIN, LOW);
   }
