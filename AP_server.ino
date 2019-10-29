@@ -133,7 +133,7 @@ void handleClient2(){
       soil_moist = server.arg("soil_moist").toFloat();                                 //očitavanje vlaž.zemljišta sa klijenta 2
       
       //slanje novih vrijednosti na kojima se regulišu izmjerene veličine na klijentu 2
-      String response_2 = "?" + String(reg_temperature) + "," + String(reg_humidity) + "," + String(reg_moisture) + "#";
+      String response_2 = "@" + String(reg_temperature) + "x" + String(reg_humidity) + "x" + String(reg_moisture) + "#";
       server.send(200, "text/plain", response_2);     
     }
 }
