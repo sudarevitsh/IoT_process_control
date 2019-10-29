@@ -27,21 +27,36 @@ int char_to_pin(char led_char){
   switch (led_char){
     case 'A':
     led_pin = 14;
+    break;
     case 'B':
     led_pin = 12;
+    break;
     case 'C':
     led_pin = 13;
+    break;
     case 'D':
     led_pin = 15;
+    break;
     case 'E':
     led_pin = 3;
+    break;
     case 'F':
-    led_pin = 1;
+    led_pin = 2;
+    break;
   }
   return led_pin;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
+
+void pin_reset(){
+  digitalWrite(14, LOW);
+  digitalWrite(12, LOW);
+  digitalWrite(13, LOW);
+  digitalWrite(15, LOW);
+  digitalWrite(3, LOW);
+  digitalWrite(2, LOW);
+}
 
 void algorithm(){  
   for(int part_count = 1; part_count <= parts; part_count++){
@@ -72,16 +87,12 @@ void algorithm(){
     delay_timer = "";
     for(ch_no = char_place[counter] + 1; ch_no < char_place[counter + 1]; ch_no ++){
       char com = job.charAt(ch_no);
-      Serial.print("timer: ");Serial.println(delay_timer);
-      Serial.print("znak ");Serial.println(com);
       if (com == 'A' || com == 'B' || com == 'C' || com == 'D' || com == 'E' || com == 'F'){
         if(job.charAt(ch_no + 1) == '+'){
-          Serial.println("HIGH"); 
-          digitalWrite(char_to_pin(com), HIGH);
+          digitalWrite(char_to_pin(com), HIGH);          
         }
         else if(job.charAt(ch_no + 1) == '-'){
-          Serial.println("LOW");
-          digitalWrite(char_to_pin(com), LOW);
+          digitalWrite(char_to_pin(com), LOW); 
         }
       }
       else if (com == '1' || com == '2' ||  com == '3' || com == '4' || com == '5' || com == '6' || com == '7' || com == '8' || com == '9' || com == '0'){
@@ -93,8 +104,9 @@ void algorithm(){
     delay(delay_timer.toInt());
   }
   spec_count = 0;
-  Serial.print("Dijelova napravljeno");Serial.println(parts);
-  Serial.println("Cekanje serveraaaaa"); 
+  pin_reset();
+  Serial.print("Dijelova napravljeno");Serial.println(part_count);
+  
   }
 }
   
@@ -104,32 +116,38 @@ Serial.begin(115200);
 
   pinMode(LED_BUILTIN, OUTPUT);
   pinMode(14, OUTPUT);
-  pinMode(12, OUTPUT);
+  pinMode(12, OUTPUT); 
   pinMode(13, OUTPUT);
   pinMode(15, OUTPUT);
   pinMode(3, OUTPUT);
-  pinMode(1, OUTPUT);
-  
+  pinMode(2, OUTPUT);
+
+  pin_reset();
+   
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
    
   while(WiFi.status() != WL_CONNECTED){
     digitalWrite(LED_BUILTIN, LOW);
-    delay(200);
+    delay(500);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(200);
   }
+  Serial.println("Connected!");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------
 
 void loop(){
-     
+   
+  Serial.println("Pinovi resetovani");
+  delay(5);
   if(client_free){
     client.connect(host_str, port);
       
     String request = String(route + "?client_id=" + String(id) + "&client_free=" + String(client_free));
     client.print(String("GET " + request + " HTTP/1.1\r\n" + "Host: " + host_str + "\r\n" + "Connection: keep-alive\r\n\r\n"));   
+    Serial.println("Send!");
       
     unsigned long timeout = millis();
     while (client.available() == 0) {
@@ -143,31 +161,33 @@ void loop(){
       if (client.available()){
        
         String line = client.readStringUntil('$');
-        Serial.print("OD SERVERA DOSLO: ");
         Serial.println(line);
-        delay(2000);
+        
         unsigned int beginning = line.indexOf('@');
         Serial.print("pocetni indeks ");Serial.println(beginning);
         unsigned int mid = line.indexOf('x', beginning);
         Serial.print("srednji indeks ");Serial.println(mid);
         unsigned int ending = line.indexOf('#', beginning );
         Serial.print("krajnji indeks ");Serial.println(ending);
-        delay(3000);
+        delay(30);
         
         parts = line.substring(beginning + 1, mid).toInt();
         job = line.substring(mid + 1 , ending + 1);
+        
         client.flush();
-        //Serial.println(line);
+        
         Serial.print("Zadatak je ovaj:");Serial.println(job);
         Serial.print("Dijelova treba:");Serial.println(parts);
-        delay(3000);          
+        delay(30);          
       }
     }
     client_free = false;
   }
+  
   while (!client_free){
       algorithm();
+      Serial.println("Algoritam gotov!");
       client_free = true;
-  }
-   
+      Serial.println("Trazi se novi posao, pin reset!");
+  } 
 }
