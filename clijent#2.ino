@@ -6,7 +6,7 @@
 DHT dht(DHT_PIN, DHT_TYPE);                                                            //inicijalizacija DHT objekta
 
 //parametri pristupne tačke na koju se klijent povezuje
-const char* ssid = "Zavrsni_rad";                                                      //naziv pristupne tačke na koju se klijent povezuje    
+const char* ssid = "Zavrsni_Rad";                                                      //naziv pristupne tačke na koju se klijent povezuje    
 const char* password = "12345678";                                                     //lozinka pristupne tačke
 
 //parametri servera na koji se šalju zahtjevi
@@ -108,12 +108,12 @@ void loop(){
        server_response = client.readStringUntil('#');                                  //čitanje zahtjeva sve do znaka '#'
        
        int beginning = server_response.indexOf('@');                                   //indeks početnog znaka '@'
-       int com1 = server_response.indexOf(',');                                        //indeks prvog veznika 'x'
+       int com1 = server_response.indexOf(',');                                        //indeks prvog veznika ','
        
        //izvlačenje vrijednosti na kojoj se reguliše temperatura iz odgovora servera
        regulator_temeprature = server_response.substring(beginning + 1, com1).toFloat();
         
-       int com2 = server_response.indexOf(',', com1 + 1);                              //indeks drugog veznika 'x'
+       int com2 = server_response.indexOf(',', com1 + 1);                              //indeks drugog veznika ','
        
        //izvlačenje vrijednosti na kojoj se reguliše vlažnost vazduha iz odgovora servera 
        regulator_humidity = server_response.substring(com1 + 1, com2).toFloat();       
