@@ -21,10 +21,10 @@ int parts;                                                                      
 //promjenljive koje se koriste u algoritmu za razradu posla/procesa iz dobijenog odgovora sa servera 
 unsigned int char_number = 0;                                                          //indeks znaka iz niza              
 int break_count = 0;                                                                   //broj određenih prelomnih znakova (?,#)
-int operations = 0;                                                                    //broj operacija (+1)
-int counter = 0;                                                                       //brojač radnji u toku procesa
+int operations;                                                                        //broj operacija (+1)
 int job_length;                                                                        //broj znakova unutar posla
 String delay_timer = "";                                                               //vrijeme trajanja stanja u procesu 
+int counter;                                                                           //brojač radnji u toku procesa
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,6 +64,7 @@ void pin_reset(){
   digitalWrite(15, LOW);
   digitalWrite(3, LOW);
   digitalWrite(2, LOW);
+  delay(50);
 }
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -81,27 +82,30 @@ void algorithm(){
 
   int char_place[break_count];                                                         //formiranje niza za indeks željenih znakova
   memset(char_place, 0, sizeof(char_place));                                           //postavljanje vrijednosti elemenata na 0                     
-    
+  operations = 0;
+  counter = 0;
+  
   for (int char_number = 0; char_number < job_length; char_number ++){                 //prebrojavanje slično prvom
     char com = job.charAt(char_number);
     if (com == '?' || com == ',' || com == '#'){
       char_place[operations] = char_number;                                            //ovaj put se spremaju indeksi željenih znakova
       operations += 1;  
     }
-
   } 
- 
+  pin_reset();                                                                         //resetovanje pinova  
+  
   for(counter = 0; counter < break_count - 1; counter ++){                             //brojač znakova u jednoj radnji
     delay_timer = "";                                                                  //resetovanje tajmera trajanja stanja
-    
-   //brojač indeksa svakog od znakova unutar jedne radnje
-   for(char_number = char_place[counter] + 1; char_number < char_place[counter + 1]; char_number ++){
+     
+ 
+    //brojač indeksa svakog od znakova unutar jedne radnje
+    for(char_number = char_place[counter] + 1; char_number < char_place[counter + 1]; char_number ++){
       char com = job.charAt(char_number);                                              //znak na mjestu broja brojača
     
       //poređenje znaka, da li je slovo ili neki broj
       if (com == 'A' || com == 'B' || com == 'C' || com == 'D' || com == 'E' || com == 'F'){
         
-       if(job.charAt(char_number + 1) == '+'){                                         //ako je slovo, provjerava se i naredni znak
+        if(job.charAt(char_number + 1) == '+'){                                        //ako je slovo, provjerava se i naredni znak
           digitalWrite(char_to_pin(com), HIGH);                                        //na osnovu tih znakova se određuje novo stanje lampice
         }
         else if(job.charAt(char_number + 1) == '-'){                                   //ako je minus, lampica se gasi...
@@ -115,7 +119,6 @@ void algorithm(){
     delay(delay_timer.toInt());                                                        //niz brojeva se pretvara u cjelobrojnu vrijednost i čeka se
   }
   break_count = 0;                                                                     //resetovanje brojača
-  pin_reset();                                                                         //resetovanje pinova  
   }
 }
 
@@ -142,9 +145,9 @@ void setup(){
   //signalizacija da povezivanje i dalje traje...
   while(WiFi.status() != WL_CONNECTED){
     digitalWrite(LED_BUILTIN, LOW);
-    delay(500);
+    delay(100);
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(200);
+    delay(100);
   }
 }
 
@@ -156,6 +159,7 @@ void loop(){
   //slanje zahtjeva serveru za novi posao, na osnovu stanja klijenta
   if(client_free){
     client.connect(host_str, port);                                                   //ako je klijent slobodan, povezuje se sa serverom
+    client_free = false;                                                              //promjena stanja klijenta u "zauzet"
     
     //formiranje zahtjeva, sa stanjem i ID brojem kako bi server mogao da zna o kom klijentu se radi
     String request = String(route + "?client_id=" + String(id) + "&client_free=" + String(client_free));
@@ -185,17 +189,18 @@ void loop(){
         //izvlačenje željenih vrijednosti iz odgovora
         parts = line.substring(beginning + 1, mid).toInt();                            //broj komada, tj. ponavljanja procesa
         job = line.substring(mid + 1 , ending + 1);                                    //proces koji je klijent unio
-        
+        delay(50);
         client.flush();                                                                //brisanje svih neočitanih bitova        
       }
     }
-    client_free = false;                                                               //promjena stanja klijenta u "zauzet"
+    
   }
   
   //izvršavanje procesa kroz već opisani algoritam
   while (!client_free){
       algorithm();
-   
+      pin_reset();
+      delay(2000);
       //kada se proces/posao obavi, klijent je ponovo slobodan i može da zahtjeva novi posao od servera
       client_free = true;                                                               
   } 
