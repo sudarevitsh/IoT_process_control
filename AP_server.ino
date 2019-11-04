@@ -19,8 +19,10 @@ float humidity = 0;                                                             
 float soil_moist = 0;                                                                  //izmjerena vlažnost zemljišta
 
 //početne (default) vrijednosti parametara regulatora koje se šalju klijentu 2, korisnik može da ih izmjeni preko telefona
-float reg_temperature = 20;                                                            //vrijednost na kojoj se reguliše temperatura
-float reg_humidity = 60;                                                               //vrijednost na kojoj se reguliše vlažnost vazduha
+float reg_temp_bot = 20;                                                               //donja vrijednost na kojoj se reguliše temperatura
+float reg_temp_top = 30;                                                               //gornja vrijednost na kojoj se reguliše temepratura
+float reg_humi_bot = 40;                                                               //donja vrijednost na kojoj se reguliše vlaž.vazduha
+float reg_humi_top = 70;                                                               //gornja vrijednost na kojoj se reguliše vlaž. vazduha
 float reg_moisture = 30;                                                               //vrijednost na kojoj se reguliše vlažnost zemlje 
 
 //nizovi u kojima se čuvaju uneseni poslovi i ponavljanja, prije nego što se pošalju ka klijentu 1 na izvršavanje
@@ -90,7 +92,7 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
         html += REG_MOIST;
         html += "% /<input class=\"input_class\" style=width:10%; name=\"reg_moist\" type=\"number\" min=\"0\" max=\"100\" step=\".01\"></h5>\n";
         html += "<p><button class=\"button_class\" value=\"Submit\">Izmjeni vrijednosti</button></p>";
-
+//DODATI NOVE PARAMETREEEEE AAAAAAAAAA
         html += "</form></fieldset></body>\n";
         html += "</html>\n";
 
@@ -110,6 +112,7 @@ void handleClient1(){
       else{
         if(parts[process_number_out] == ""){                                           //slanje odgovora kada nema broja komada
           server.send(102, "text/plain", "Proces nema ponavljanje");
+          goto skip;
         }
         else{                                                                          //slanje procesa kada su svi uslovi ispunjeni
           String response_1 = ("@" + parts[process_number_out] + "x?" + process[process_number_out] + "#$"); 
@@ -133,7 +136,7 @@ void handleClient2(){
       soil_moist = server.arg("soil_moist").toFloat();                                 //očitavanje vlaž.zemljišta sa klijenta 2
       
       //slanje novih vrijednosti na kojima se regulišu izmjerene veličine na klijentu 2
-      String response_2 = "@" + String(reg_temperature) + "," + String(reg_humidity) + "," + String(reg_moisture) + "#";
+      String response_2 = "@"+String(reg_temp_bot)+","+String(reg_temp_top)+","+String(reg_humi_bot)+","+String(reg_humi_top)+","+String(reg_moisture)+"#";
       server.send(200, "text/plain", response_2);     
     }
 }
@@ -142,7 +145,7 @@ void handleClient2(){
 
 //funkcija koja se pokreće kada se otvori stranica i koja šalje funkciju web stranice kao odgovor
 void handleRoot(){
-    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temperature, reg_humidity, reg_moisture)); 
+    server.send(200, "text/html", webpage(temperature, humidity, soil_moist, reg_temp_bot, reg_temp_top reg_humi_bot, reg_humi_top, reg_moisture)); 
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -167,14 +170,20 @@ void handleInput(){
 
 //funkcija koja se pokreće prilikom unosa novih vrijednosti na kojima se odvija regulacija veličina (klijent 2)
 void handleRegulation(){
-    if (server.arg("reg_temp") != ""){                                                 //nastavlja ako unos nije prazno polje...
-      reg_temperature = server.arg("reg_temp").toFloat();                              //očitavanje nove temperature za regulisanje
+    if (server.arg("reg_temp_bot") != ""){                                                //nastavlja ako unos nije prazno polje...
+      reg_temp_bot = server.arg("reg_temp_bot").toFloat();                             //očitavanje nove donje temperature za regulisanje
     }
-    if (server.arg("reg_humi") != ""){
-      reg_humidity = server.arg("reg_humi").toFloat();                                 //očitavanje nove vlaž.vazduha za regulisanje
+    if (server.arg("reg_humi_bot") != ""){
+      reg_humi_bot = server.arg("reg_humi_bot").toFloat();                                //očitavanje nove vlaž.vazduha za regulisanje
     }
     if (server.arg("reg_moist") != ""){
-      reg_moisture = server.arg("reg_moist").toFloat();                                //očitavanje nove vlaž.zemlje za regulisanje  
+      reg_moisture = server.arg("reg_moist").toFloat();                                   //očitavanje nove vlaž.zemlje za regulisanje  
+    }
+    if (server.arg("reg_temp_top") != ""){
+      reg_temp_top = server.arg("reg_temp_top").toFloat();                                //očitavanje nove gornje temperature  
+    }
+    if (server.arg("reg_humi_top") != ""){
+      reg_humi_top = server.arg("reg_humi_top").toFloat();                                //očitavanje nove gornje vlažnosti vazduha  
     }
     server.send(200, "text/plain", "Vrijednosti regulatora su postavljene.");
 }
