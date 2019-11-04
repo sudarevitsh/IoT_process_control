@@ -139,25 +139,45 @@ void loop(){
   //regulisanje mjerenih veličina na osnovu vrijednosti koje je korisnik unio
   
   //uključenje regulatora temperature ako je izmjerena vrijednost manja od unesene
-  if (dht_temperature < regulator_temeprature){
-    digitalWrite(TEMP_REG_PIN, HIGH);                                                  
+  if (dht_temperature < regulator_temp_bot){
+    digitalWrite(TEMP_BOT_PIN, HIGH);                                                  
   }
   
   //isključenje regulatora temperature ako ne vrijedi prethodno
-  else if (dht_temperature >= regulator_temeprature){
-    digitalWrite(TEMP_REG_PIN, LOW); 
+  else if (dht_temperature >= regulator_temp_bot){
+    digitalWrite(TEMP_BOT_PIN, LOW); 
+  }
+  
+  //uključenje regulatora temperature ako je izmjerena vrijednost veća od unesene
+  if (dht_temperature > regulator_temp_top){
+    digitalWrite(TEMP_TOP_PIN, HIGH);                                                  
+  }
+  
+  //isključenje regulatora temperature ako ne vrijedi prethodno
+  else if (dht_temperature <= regulator_temp_top){
+    digitalWrite(TEMP_TOP_PIN, LOW); 
   }
   
   //uključenje regulatora vlažnosti vazduha ako je izmjerena vrijednost manja od unesene
-  if (dht_humidity < regulator_humidity){
+  if (dht_humidity < regulator_humi_bot){
+    digitalWrite(HUMI_BOT_PIN, HIGH);       
+  }
+  
+  //isključenje regulatora vlažnosti vazduha ako ne vrijedi prethodno
+  else if (dht_humidity >= regulator_humi_bot){
+    digitalWrite(HUMI_BOT_PIN, LOW);
+  }
+  
+  //uključenje regulatora vlažnosti ako je izmjerena vrijednost veća od unesene
+  if (dht_humidity > regulator_humidity){
     digitalWrite(HUMI_REG_PIN, HIGH);       
   }
   
   //isključenje regulatora vlažnosti vazduha ako ne vrijedi prethodno
-  else if (dht_humidity >= regulator_humidity){
+  else if (dht_humidity <= regulator_humidity){
     digitalWrite(HUMI_REG_PIN, LOW);
-  }
-  
+  }  
+    
   //uključenje regulatora vlažnosti zemljišta ako je izmjerena vrijednost manja od unesene
   if (soil_moisture < regulator_moisture){
     digitalWrite(MOIST_REG_PIN, HIGH);  
