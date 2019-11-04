@@ -30,14 +30,19 @@ int interval_counter = 1;                                                       
 unsigned long time_counter;                                                            //brojač vremena od početnog trenutka
 
 //brojevi pinova sa kojih se šalju upravljački signali na regulatore
-const int TEMP_REG_PIN = 14;                                                           //pin regulatora temperature
-const int HUMI_REG_PIN = 12;                                                           //pin regulatora vlažnosti vazduha
+const int TEMP_BOT_PIN = 14;                                                           //pin regulatora temperature
+const int HUMI_BOT_PIN = 12;                                                           //pin regulatora vlažnosti vazduha
+const int TEMP_TOP_PIN = ;
+const int HUMI_TOP_PIN = ;
 const int MOIST_REG_PIN = 15;                                                          //pin regulatora vlažnosti vazduha
 
+int comma[4];
 //vrijednosti primljene od servera, primljenim vrijednostima se reguliše samo donja granica željenih veličina
 String server_response = "";                                                           //String objekat serverovog odgovora
-float regulator_temeprature;                                                           //vrijednost na kojoj se reguliše temperatura
-float regulator_humidity;                                                              //vrijednost na kojoj se reguliše vlažnost vazduha
+float regulator_temp_bot;                                                              //donja vrijednost na kojoj se reguliše temperatura
+float regulator_humi_bot;                                                              //donja vrijednost na kojoj se reguliše vlažnost vazduha
+float regulator_temp_top;                                                              //gornja vrijednost na kojoj se reguliše temperatura
+float regulator_humi_top;                                                              //gornja vrijednost na kojoj se reguliše vlažnost vazduha
 float regulator_moisture;                                                              //vrijednost na kojoj se reguliše vlažnost zemlje
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
@@ -47,8 +52,10 @@ void setup(){
   
   //podešavanje izlaza, tj. postavljanje pinova u izlazni mod
   pinMode(LED_BUILTIN, OUTPUT);         
-  pinMode(TEMP_REG_PIN, OUTPUT);
-  pinMode(HUMI_REG_PIN, OUTPUT);
+  pinMode(TEMP_BOT_PIN, OUTPUT);
+  pinMode(HUMI_BOT_PIN, OUTPUT);
+  pinMode(TEMP_TOP_PIN, OUTPUT);
+  pinMode(HUMI_TOP_PIN, OUTPUT);
   pinMode(MOIST_REG_PIN, OUTPUT);
   
   dht.begin();                                                                         //pokretanje DHT senzora (objekta)
@@ -104,11 +111,13 @@ void loop(){
     //čitanje odgovora sa servera, a zatim potraga za željenim dijelovima tog odgovora
     while (client.connected()){
       if (client.available()){
-       
+       //ISPOCETKA URADI DA MOZE SVIH 5 VRIJEDNOSTI NACI
        server_response = client.readStringUntil('#');                                  //čitanje zahtjeva sve do znaka '#'
        
        int beginning = server_response.indexOf('@');                                   //indeks početnog znaka '@'
-       int com1 = server_response.indexOf(',');                                        //indeks prvog veznika ','
+       comma[0] = beginning;
+       for (int cc = 1; cc < 5; cc++){                                                 //brojač zareza kao veznika
+       comma[cc-1] = server_response.indexOf(',', );                                       
        
        //izvlačenje vrijednosti na kojoj se reguliše temperatura iz odgovora servera
        regulator_temeprature = server_response.substring(beginning + 1, com1).toFloat();
