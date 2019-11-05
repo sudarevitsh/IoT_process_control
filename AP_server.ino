@@ -82,32 +82,30 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
         <p>Primjer:<br>A+, B+, C+3000, A-, D+2000, E+, F+3000, B-2000</p>
       </div>
      
-    <div> 
-    <fieldset class="field_class">
-    <legend>Unos zadatka</legend>
-    <form action="/input" method="GET">
-    <div>
+      <div> 
+        <fieldset class="field_class">
+        <legend>Unos zadatka</legend>
+        <form action="/input" method="GET">
         <p style=margin-top:0px>Proces:<input class="input_class" name="process"></input></p>
         <p>Broj ponavljanja:<input class="input_class" name="x" type="number" min="1" max="9"></input></p>
-    </div>
         <button class="button_class" value="Submit"><b>POSALJI PROCES</b></button>
-    </form>
-    </fieldset>
-    </div>
+      </form>
+      </fieldset>
+      </div>
     
-    <hr>
+      <hr>
     
-    <div class="div_client">
-      <h3>Klijent #2</h3>
-    </div>    
+      <div class="div_client">
+        <h3>Klijent #2</h3>
+      </div>    
     
-    <div class="div_text">
+      <div class="div_text">
         <p>Klijent koji prati i upravlja sa mikroklimom prostorije.<br>
         U polja ispod se unose intervali unutar kojih se odrzavaju mjerene velicine.</p>
-    </div>    
+      </div>    
 
-        <fieldset class="field_class"><legend>Stanje mikroklime</legend><form action="/regulation" method="GET">
-        <h4 style=margin-top:0px>Temperatura: )=====";
+      <fieldset class="field_class"><legend>Stanje mikroklime</legend><form action="/regulation" method="GET">
+      <h4 style=margin-top:0px>Temperatura: )=====";
         html += TEMPERATURE;
         html += "C</h4><h5>Podesavanje regulatora temperature: <br> [";
         html += REG_TEMP_BOT;
