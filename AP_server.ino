@@ -36,31 +36,35 @@ unsigned int process_number_out = 0;                                            
 
 //web stranica definisana u obliku funkcije sa parametrima temperature, vlažnosti i vrijednosti na kojima se reguliše
 //detaljnije objašnjena u radu
-String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP_BOT, float REG_HUMI_BOT, float REG_MOIST, float REG_TEMP_TOP, float REG_HUMI_TOP){
+String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TEMP_BOT, float REG_TEMP_TOP, float REG_HUMI_BOT, float REG_HUMI_TOP, float REG_MOIST){
   String html = R"=====(
     <!DOCTYPE html><html>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <head>
       <title>Zavrsni projekat</title>
       <style>
-        body {background-color: white ; text-align: left; color: black; font-family: candara; margin: 0px 20px; padding: 0px;}
+        body {background-color: white ; text-align: left; color: black; font-family: candara; margin: 0px 20px; padding: 0px; padding-right:20px}
+        
         h1 {padding: 0px; margin: 0px;}
         
-        .div_heading { margin: 100px 0px; font-family: rockwell;}
+        h4 {padding: 0px; margin: 2px;}
+        
+        .div_heading { margin-top: 120px; margin-bottom: 100px; font-family: rockwell;}
         
         .div_client { margin: 10px 0px; font-family: rockwell;}
         
         .div_text {font-family: candara; font-size: 14px;}
         
-        .input_class { width:195px; height: 25px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 8px; background-color: white; color: #854D41; text-align: center; font-size: 12px;}
+        .input_class { width:98%; height: 25px; margin-top: 7px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 8px; background-color: white; color: #854D41; text-align: center; font-size: 12px;}
         
-        .button_class { width: 250px; height:50px; padding 10px 10px; margin: 5px 5px; box-sizing: border-box; border: 2px #FFFFFF; border-radius: 8px; background-color: black; color: white; font-family: rockwell; font-size: 12px;}
+        .button_class { width: 98%; height:50px; padding: 10px 10px; margin: 5px 5px; box-sizing: border-box; border: 2px #FFFFFF; border-radius: 8px; background-color: black; color: white; font-family: rockwell; font-size: 12px;}
         
-        .field_class{ width: 265px; border-color: black; padding: 20px; text-align: center; margin-bottom: 30px; font-size: 14px; border-radius: 12px;}
+        .field_class { width: 90%; border-color: black; padding: 20px; text-align: center; margin-bottom: 30px; font-size: 14px; border-radius: 12px;}
+                
       </style>
       </head>
       <body>
-      
+     
       <div class="div_heading">
         <h1>ZAVRSNI</h2>
         <h1>RAD</h2>
@@ -82,8 +86,10 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
     <fieldset class="field_class">
     <legend>Unos zadatka</legend>
     <form action="/input" method="GET">
-        <p>Proces:<input class="input_class" name="process"></input></p>
-        <p>Broj ponavljanja:<input class="input_class" name="x" style=width:140px; type="number" min="1" max="9"></input></p>
+    <div>
+        <p style=margin-top:0px>Proces:<input class="input_class" name="process"></input></p>
+        <p>Broj ponavljanja:<input class="input_class" name="x" type="number" min="1" max="9"></input></p>
+    </div>
         <button class="button_class" value="Submit"><b>POSALJI PROCES</b></button>
     </form>
     </fieldset>
@@ -96,30 +102,36 @@ String webpage(float TEMPERATURE, float HUMIDITY, float SOIL_MOIST, float REG_TE
     </div>    
     
     <div class="div_text">
-        <p>Klijent koji prati i upravlja sa mikroklimom prostorije.</p>
-        <p>U polja ispod se unose intervali unutar kojih se odrzavaju mjerene velicine.</p>
+        <p>Klijent koji prati i upravlja sa mikroklimom prostorije.<br>
+        U polja ispod se unose intervali unutar kojih se odrzavaju mjerene velicine.</p>
     </div>    
 
         <fieldset class="field_class"><legend>Stanje mikroklime</legend><form action="/regulation" method="GET">
-        <h4>Temperatura:
-        TEMPERATURE
-        C</h4><h5>Podesavanje regulatora temperature:
-        REG_TEMP
-        C<input class="input_class" style=width:10%; name="reg_temp" type="number" min="0" max="50" step=".01"></h5>
-        <h4>Vlaznost vazduha:
-        HUMIDITY
-        %</h4><h5>Podesavanje regulatora vlaznosti vazduha:
-        REG_HUMI
-        %<input class="input_class" style=width:10%; name= "reg_humi" type="number" min="0" max="100" step=".01"></h5>
-        <h4>Vlaznost zemljista:
-        SOIL_MOIST
-        %</h4><h5>Podesavanje regulatora vlaznosti zemljista:
-        REG_MOIST
-        %<input class="input_class" style=width:10%; name="reg_moist" type="number" min="0" max="100" step=".01"></h5>
-        <p><button class="button_class" value="Submit">Izmjeni vrijednosti</button></p>
-
-        </form></fieldset></body>
-        </html>)=====";
+        <h4 style=margin-top:0px>Temperatura: )=====";
+        html += TEMPERATURE;
+        html += "C</h4><h5>Podesavanje regulatora temperature: <br> [";
+        html += REG_TEMP_BOT;
+        html += " - ";
+        html += REG_TEMP_TOP;
+        html += "]C<br>Min: <input class=\"input_class\" style=width:60px; name=\"reg_temp_bot\" type=\"number\" min=\"0\" max=\"50\" step=\".01\">";
+        html += "/Max: <input class=\"input_class\" style=width:60px; name=\"reg_temp_top\" type=\"number\" min=\"0\" max=\"50\" step=\".01\"></h5><hr>";
+        
+        html += "<h4>Vlaznost vazduha: ";
+        html += HUMIDITY;
+        html += "%</h4><h5>Podesavanje regulatora vlaznosti vazduha: <br> [";
+        html += REG_HUMI_BOT;
+        html += " - ";
+        html += REG_HUMI_TOP;
+        html += "]%<br>Min: <input class=\"input_class\" style=width:60px; name=\"reg_humi_bot\" type=\"number\" min=\"0\" max=\"100\" step=\".01\">";
+        html += "/Max: <input class=\"input_class\" style=width:60px; name=\"reg_humi_top\" type=\"number\" min=\"0\" max=\"100\" step=\".01\"></h5><hr>";
+       
+        html += "<h4>Vlaznost zemljista: ";
+        html += SOIL_MOIST;
+        html += "%</h4><h5>Podesavanje regulatora vlaznosti zemljista: ";
+        html += REG_MOIST;
+        html += "%<br>Donja granica: <input class=\"input_class\" style=width:60px; name=\"reg_moist\" type=\"number\" min=\"0\" max=\"100\" step=\".01\"></h5>";
+        html += "<button class=\"button_class\" value=\"Submit\"><b>IZMJENI VRIJEDNOSTI</b></button>";
+        html += "</form></fieldset></body></html>";
 
   return html;
 }
@@ -196,7 +208,7 @@ void handleInput(){
 //funkcija koja se pokreće prilikom unosa novih vrijednosti na kojima se odvija regulacija veličina (klijent 2)
 void handleRegulation(){
     if (server.arg("reg_temp_bot") != ""){                                                //nastavlja ako unos nije prazno polje...
-      reg_temp_bot = server.arg("reg_temp_bot").toFloat();                             //očitavanje nove donje temperature za regulisanje
+      reg_temp_bot = server.arg("reg_temp_bot").toFloat();                                //očitavanje nove donje temperature za regulisanje
     }
     if (server.arg("reg_humi_bot") != ""){
       reg_humi_bot = server.arg("reg_humi_bot").toFloat();                                //očitavanje nove vlaž.vazduha za regulisanje
