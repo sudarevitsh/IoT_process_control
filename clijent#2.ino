@@ -32,8 +32,8 @@ unsigned long time_counter;                                                     
 //brojevi pinova sa kojih se šalju upravljački signali na regulatore
 const int TEMP_BOT_PIN = 14;                                                           //pin regulatora temperature
 const int HUMI_BOT_PIN = 12;                                                           //pin regulatora vlažnosti vazduha
-const int TEMP_TOP_PIN = ;
-const int HUMI_TOP_PIN = ;
+const int TEMP_TOP_PIN = 3;
+const int HUMI_TOP_PIN = 2;
 const int MOIST_REG_PIN = 15;                                                          //pin regulatora vlažnosti vazduha
 
 int comma[4];
