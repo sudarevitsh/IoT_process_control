@@ -30,15 +30,16 @@ int interval_counter = 1;                                                       
 unsigned long time_counter;                                                            //brojač vremena od početnog trenutka
 
 //brojevi pinova sa kojih se šalju upravljački signali na regulatore
-const int TEMP_BOT_PIN = 14;                                                           //pin regulatora temperature
-const int HUMI_BOT_PIN = 12;                                                           //pin regulatora vlažnosti vazduha
-const int TEMP_TOP_PIN = 3;
-const int HUMI_TOP_PIN = 2;
-const int MOIST_REG_PIN = 15;                                                          //pin regulatora vlažnosti vazduha
+const int TEMP_BOT_PIN = 14;                                                           //pin regulatora temperature (grijač)
+const int HUMI_BOT_PIN = 12;                                                           //pin regulatora vlažnosti vazduha (ovlaživač vazduha)
+const int TEMP_TOP_PIN = 3;                                                            //pin regulatora temperature (hladnjak)
+const int HUMI_TOP_PIN = 2;                                                            //pin regulatora vlažnosti vadzuha (sušitelj vazduha)
+const int MOIST_REG_PIN = 15;                                                          //pin regulatora vlažnosti vazduha (sistem navodnjavanja)
 
-int comma[4];
+
 //vrijednosti primljene od servera, primljenim vrijednostima se reguliše samo donja granica željenih veličina
 String server_response = "";                                                           //String objekat serverovog odgovora
+int separator[6];                                                                      //niz rednih brojeva specijalnih znakova u odgovoru
 float regulator_temp_bot;                                                              //donja vrijednost na kojoj se reguliše temperatura
 float regulator_humi_bot;                                                              //donja vrijednost na kojoj se reguliše vlažnost vazduha
 float regulator_temp_top;                                                              //gornja vrijednost na kojoj se reguliše temperatura
@@ -111,26 +112,26 @@ void loop(){
     //čitanje odgovora sa servera, a zatim potraga za željenim dijelovima tog odgovora
     while (client.connected()){
       if (client.available()){
-       //ISPOCETKA URADI DA MOZE SVIH 5 VRIJEDNOSTI NACI
+
        server_response = client.readStringUntil('#');                                  //čitanje zahtjeva sve do znaka '#'
        
-       int beginning = server_response.indexOf('@');                                   //indeks početnog znaka '@'
-       comma[0] = beginning;
-       for (int cc = 1; cc < 5; cc++){                                                 //brojač zareza kao veznika
-       comma[cc-1] = server_response.indexOf(',', );                                       
+       separator[0] = server_response.indexOf('@');                                   //indeks početnog znaka '@'                                     
+       separator[1] = server_response.indexOf(',');
+       separator[2] = server_response.indexOf(',', separator[1]);
+       separator[3] = server_response.indexOf(',', separator[2]);
+       separator[4] = server_response.indexOf(',', separator[3]);
+       separator[5] = server_response.indexOf('#');
+    
+       //izvlačenje vrijednosti na kojima se reguliše temperatura iz odgovora servera
+       regulator_temp_bot = server_response.substring(separator[0] + 1, separator[1]).toFloat();
+       regulator_temp_top = server_response.substring(separator[1] + 1, separator[2]).toFloat();
        
-       //izvlačenje vrijednosti na kojoj se reguliše temperatura iz odgovora servera
-       regulator_temeprature = server_response.substring(beginning + 1, com1).toFloat();
-        
-       int com2 = server_response.indexOf(',', com1 + 1);                              //indeks drugog veznika ','
-       
-       //izvlačenje vrijednosti na kojoj se reguliše vlažnost vazduha iz odgovora servera 
-       regulator_humidity = server_response.substring(com1 + 1, com2).toFloat();       
-        
-       int ending = server_response.indexOf('#');                                      //indeks završnog znaka '#'
+       //izvlačenje vrijednosti na kojima se reguliše vlažnost vazduha iz odgovora servera 
+       regulator_humi_bot = server_response.substring(separator[2] + 1, separator[3]).toFloat();       
+       regulator_humi_top = server_response.substring(separator[3] + 1, separator[4]).toFloat(); 
        
        //izvlačenje vrijednosti na kojoj se reguliše vlažnost zemljišta iz odgovora servera
-       regulator_moisture = server_response.substring(com2 + 1, ending).toFloat();
+       regulator_moisture = server_response.substring(separator[4] + 1, separator[5]).toFloat();
       }
     }
     client.stop();                                                                     //prekid veze sa serverom
@@ -169,13 +170,13 @@ void loop(){
   }
   
   //uključenje regulatora vlažnosti ako je izmjerena vrijednost veća od unesene
-  if (dht_humidity > regulator_humidity){
-    digitalWrite(HUMI_REG_PIN, HIGH);       
+  if (dht_humidity > regulator_humi_top){
+    digitalWrite(HUMI_TOP_PIN, HIGH);       
   }
   
   //isključenje regulatora vlažnosti vazduha ako ne vrijedi prethodno
-  else if (dht_humidity <= regulator_humidity){
-    digitalWrite(HUMI_REG_PIN, LOW);
+  else if (dht_humidity <= regulator_humi_top){
+    digitalWrite(HUMI_TOP_PIN, LOW);
   }  
     
   //uključenje regulatora vlažnosti zemljišta ako je izmjerena vrijednost manja od unesene
