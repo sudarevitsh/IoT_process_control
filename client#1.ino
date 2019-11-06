@@ -72,6 +72,7 @@ void pin_reset(){
 //algoritam kojim se iz String objekta formira proces koji je korisnik unio i paralelno izvršava
 void algorithm(){  
   for(int part_count = 1; part_count <= parts; part_count++){                          //proces se ponavlja uneseni broj puta 
+    delay(500);
     job_length = job.length();                                                         //broj znakova u primljenom odgovoru 
     for (char_number = 0; char_number < job_length ; char_number ++){                  //traženje određenih znakova u nizu
       char com = job.charAt(char_number);
@@ -189,6 +190,7 @@ void loop(){
         //izvlačenje željenih vrijednosti iz odgovora
         parts = line.substring(beginning + 1, mid).toInt();                            //broj komada, tj. ponavljanja procesa
         job = line.substring(mid + 1 , ending + 1);                                    //proces koji je klijent unio
+        job.toUpperCase();
         delay(50);
         client.flush();                                                                //brisanje svih neočitanih bitova        
       }
