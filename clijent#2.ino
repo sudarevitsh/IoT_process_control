@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>                                                               //ESP 8266 WiFi biblioteka
 #include <DHT.h>                                                                       //biblioteka senzora temperature i vlaž.vazduha
 
-#define DHT_PIN 13                                                                     //definisanje pina DHT senzora
+#define DHT_PIN 2                                                                      //definisanje pina DHT senzora
 #define DHT_TYPE DHT21                                                                 //vrsta DHT senzora
 DHT dht(DHT_PIN, DHT_TYPE);                                                            //inicijalizacija DHT objekta
 
@@ -31,10 +31,10 @@ unsigned long time_counter;                                                     
 
 //brojevi pinova sa kojih se šalju upravljački signali na regulatore
 const int TEMP_BOT_PIN = 14;                                                           //pin regulatora temperature (grijač)
-const int HUMI_BOT_PIN = 12;                                                           //pin regulatora vlažnosti vazduha (ovlaživač vazduha)
-const int TEMP_TOP_PIN = 3;                                                            //pin regulatora temperature (hladnjak)
-const int HUMI_TOP_PIN = 2;                                                            //pin regulatora vlažnosti vadzuha (sušitelj vazduha)
-const int MOIST_REG_PIN = 15;                                                          //pin regulatora vlažnosti vazduha (sistem navodnjavanja)
+const int HUMI_BOT_PIN = 13;                                                           //pin regulatora vlažnosti vazduha (ovlaživač vazduha)
+const int TEMP_TOP_PIN = 12;                                                           //pin regulatora temperature (hladnjak)
+const int HUMI_TOP_PIN = 15;                                                           //pin regulatora vlažnosti vadzuha (sušitelj vazduha)
+const int MOIST_REG_PIN = 3;                                                           //pin regulatora vlažnosti vazduha (sistem navodnjavanja)
 
 
 //vrijednosti primljene od servera, primljenim vrijednostima se reguliše samo donja granica željenih veličina
