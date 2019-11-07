@@ -168,7 +168,7 @@ void handleClient2(){
     if (server.arg("client_id") == "2"){                                               //provjeranja klijenta
       temperature = server.arg("temperature").toFloat();                               //očitavanje temperature sa klijenta 2
       humidity = server.arg("humidity").toFloat();                                     //očitavanje vlaž.vazduha sa klijenta 2
-      soil_moist = server.arg("soil_moist").toFloat();                                 //očitavanje vlaž.zemljišta sa klijenta 2
+      soil_moist = server.arg("soil_moisture").toFloat();                                 //očitavanje vlaž.zemljišta sa klijenta 2
       
       //slanje novih vrijednosti na kojima se regulišu izmjerene veličine na klijentu 2
       String response_2 = "@"+String(reg_temp_bot)+","+String(reg_temp_top)+","+String(reg_humi_bot)+","+String(reg_humi_top)+","+String(reg_moisture)+"#";
