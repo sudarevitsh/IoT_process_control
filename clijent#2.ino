@@ -50,7 +50,7 @@ float regulator_moisture;                                                       
 
 //osnovni dio programa koji se izvršava samo jednom
 void setup(){
-  
+  Serial.begin(115200);
   //podešavanje izlaza, tj. postavljanje pinova u izlazni mod
   pinMode(LED_BUILTIN, OUTPUT);         
   pinMode(TEMP_BOT_PIN, OUTPUT);
@@ -83,8 +83,10 @@ void loop(){
   dht_humidity = dht.readHumidity();                                                   //očitavanje vrijednosti temperature sa DHT senzora
   dht_temperature = dht.readTemperature();                                             //očitavanje vrijednosti vlaž.vazduha sa DHT senzora
   moist_value = analogRead(0);                                                         //očitavanje vrijednosti sa senzora vlažnosti zemlje
-  soil_moisture = constrain(map (moist_value, 1024, 880, 0, 100  ), 0, 100);           //mapiranje i ograničavanje vrijednosti vlažnosti zemlje
-
+  soil_moisture = constrain(map (moist_value, 1024, 880, 0, 100), 0, 100);           //mapiranje i ograničavanje vrijednosti vlažnosti zemlje
+  Serial.print("Analogna: ");Serial.println(moist_value);
+  Serial.print("Pretvorena: ");Serial.println(soil_moisture);
+  delay(500);
   //slanje zahtjeva na server, ako je protekao određen vremenski period, kako je "millis()" funkcija koja daje vrijednost od početnog trenutka...
   //koristi se promjenljiva "interval_counter" kojom se množi željeni vremenski period da bi se postigao željeni vremenski interval u toku rada
   time_counter = millis();
@@ -115,23 +117,27 @@ void loop(){
 
        server_response = client.readStringUntil('#');                                  //čitanje zahtjeva sve do znaka '#'
        
-       separator[0] = server_response.indexOf('@');                                   //indeks početnog znaka '@'                                     
+       separator[0] = server_response.indexOf('@');                                    //indeks početnog znaka '@'                                     
        separator[1] = server_response.indexOf(',');
-       separator[2] = server_response.indexOf(',', separator[1]);
-       separator[3] = server_response.indexOf(',', separator[2]);
-       separator[4] = server_response.indexOf(',', separator[3]);
+       separator[2] = server_response.indexOf(',', separator[1] + 1);
+       separator[3] = server_response.indexOf(',', separator[2] + 1);
+       separator[4] = server_response.indexOf(',', separator[3] + 1);
        separator[5] = server_response.indexOf('#');
     
        //izvlačenje vrijednosti na kojima se reguliše temperatura iz odgovora servera
        regulator_temp_bot = server_response.substring(separator[0] + 1, separator[1]).toFloat();
        regulator_temp_top = server_response.substring(separator[1] + 1, separator[2]).toFloat();
-       
+       Serial.print("Donja temp: "); Serial.println(regulator_temp_bot);
+       Serial.print("Gornja temp: "); Serial.println(regulator_temp_top);
        //izvlačenje vrijednosti na kojima se reguliše vlažnost vazduha iz odgovora servera 
        regulator_humi_bot = server_response.substring(separator[2] + 1, separator[3]).toFloat();       
        regulator_humi_top = server_response.substring(separator[3] + 1, separator[4]).toFloat(); 
-       
+       Serial.print("Donja vlaz: "); Serial.println(regulator_humi_bot);
+       Serial.print("Gornja vlaz: "); Serial.println(regulator_humi_top);
        //izvlačenje vrijednosti na kojoj se reguliše vlažnost zemljišta iz odgovora servera
        regulator_moisture = server_response.substring(separator[4] + 1, separator[5]).toFloat();
+       Serial.print("Donja temp: "); Serial.println(regulator_moisture);
+       delay(500);
       }
     }
     client.stop();                                                                     //prekid veze sa serverom
