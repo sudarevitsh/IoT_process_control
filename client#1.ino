@@ -113,7 +113,7 @@ void algorithm(){
           digitalWrite(char_to_pin(com), LOW); 
         }
       }
-      else if (com == '1' || com == '2' ||  com == '3' || com == '4' || com == '5' || com == '6' || com == '7' || com == '8' || com == '9' || com == '0'){
+      else if (isDigit(com)){
         delay_timer += String(com);                                                    //ako se radi o broju, on se koncentriše sa dosadašnjim brojevma
       }       
     }
